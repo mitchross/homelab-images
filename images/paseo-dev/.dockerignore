@@ -1,0 +1,11 @@
+*
+!Dockerfile
+!mise.toml
+!agy-release.json
+!scripts/
+!scripts/**
+!config/
+!config/**
+!pi-packages/
+!pi-packages/package.json
+!pi-packages/package-lock.json
