@@ -34,12 +34,29 @@ run containers. iOS/watch builds need a Mac runner. Antigravity requires its own
 login and Paseo drives it in full-access mode; its interactive permission and
 transcript replay limitations still apply.
 
+## Optional Paseo plugins
+
+The image does not enable third-party Paseo plugins. Provider support is already
+built in; Pi extension packages are a separate layer. Review and opt into these
+on the deployed daemon after its baseline works:
+
+| Plugin | Use |
+| --- | --- |
+| [Shared Browser](https://github.com/omercnet/paseo-plugins/tree/main/paseo-shared-browser) | Share a workspace browser between agents and your phone; requires Node 24 and a prepared Chromium runtime |
+| [PR Radar](https://github.com/omercnet/paseo-plugins/tree/main/pr-radar) | Track workspace PRs and checks; requires authenticated `gh` |
+| [Agent Monitor](https://github.com/omercnet/paseo-plugins/tree/main/agent-monitor) | Triage agents across workspaces |
+
+Plugins execute with the daemon user's access to credentials and infrastructure.
+Pin and test selected versions; directory catalog checks are not a source audit.
+
 ## Updates and publishing
 
-Pull requests build and test without publishing. Trusted repository pushes also
+Fork pull requests build and test without publishing. Same-repository PRs use
+their branch push check to avoid duplicate builds. Trusted repository pushes
 publish `ghcr.io/mitchross/paseo-dev:sha-<full-commit>-<run-id>-<attempt>` after tests pass; branch
 images are candidates, not a production promotion. Pin the resulting digest in
-a separate infrastructure PR. Never merge or deploy automatically.
+a separate infrastructure PR. Main also publishes a rolling `main` tag. Pin `:main@sha256:...` in GitOps so
+Renovate proposes digest updates. Never merge or deploy automatically.
 
 Renovate manages base images, Actions and mise tool pins once installed for this
 repository. Agent versions are tracked Dockerfile arguments; Antigravity's release URL

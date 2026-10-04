@@ -15,6 +15,8 @@ ENV MISE_DATA_DIR=/opt/mise \
     MISE_CACHE_DIR=/tmp/mise-cache \
     MISE_GLOBAL_CONFIG_FILE=/etc/mise/config.toml \
     MISE_YES=1 \
+    MISE_RUSTUP_HOME=/opt/rustup \
+    MISE_CARGO_HOME=/opt/cargo \
     MISE_PYTHON_COMPILE=0 \
     PATH=/opt/mise/shims:/opt/agents/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
@@ -43,10 +45,7 @@ RUN npm install --global --prefix /opt/agents \
     && npm cache clean --force
 COPY pi-packages/ /opt/pi-packages/
 RUN npm ci --prefix /opt/pi-packages --omit=dev && npm cache clean --force
-RUN mv /home/paseo/.rustup /opt/rustup && mv /home/paseo/.cargo /opt/cargo \
-    && find /opt/mise/installs/rust -type l -lname /home/paseo/.cargo/bin -exec ln -sfn /opt/cargo/bin {} \; \
-    && chown -R 1000:1000 /opt/cargo
-ENV MISE_RUSTUP_HOME=/opt/rustup MISE_CARGO_HOME=/opt/cargo
+RUN chown -R 1000:1000 /opt/cargo
 RUN npm install --global --prefix /opt/agents pnpm@12.9.1 && npm cache clean --force
 ARG OP_VERSION=2.39.0
 ARG OP_SHA256=6fba7f376b6c6dec49f41b06408930a43ad064cce103c6a2ce5b3d0413a86434

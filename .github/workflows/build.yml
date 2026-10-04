@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -49,5 +50,9 @@ jobs:
           IMAGE: ghcr.io/mitchross/paseo-dev:sha-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           docker push "$IMAGE"
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            docker tag "$IMAGE" ghcr.io/mitchross/paseo-dev:main
+            docker push ghcr.io/mitchross/paseo-dev:main
+          fi
           digest=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE")
           echo "Published: \`$digest\`" >> "$GITHUB_STEP_SUMMARY"
