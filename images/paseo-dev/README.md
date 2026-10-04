@@ -262,7 +262,15 @@ store. The image does not install or copy Mink.
 
 Review hooks and MCP definitions before you enable them. Supply their credentials
 at runtime. Desktop bridges may need services that the container does not have.
-The image enables no third-party Paseo plugins.
+The image enables no third-party Paseo plugins. Review these before you opt in:
+
+| Plugin | Use |
+| --- | --- |
+| [Shared Browser](https://github.com/omercnet/paseo-plugins/tree/main/paseo-shared-browser) | Share a workspace browser between agents and your phone. Needs Node 24 and a prepared Chromium runtime. |
+| [PR Radar](https://github.com/omercnet/paseo-plugins/tree/main/pr-radar) | Track workspace PRs and checks. Needs an authenticated `gh`. |
+| [Agent Monitor](https://github.com/omercnet/paseo-plugins/tree/main/agent-monitor) | Triage agents across workspaces. |
+
+Plugins run with the daemon user's credentials and network access. Pin and test the versions you choose.
 
 ## Build and test
 
