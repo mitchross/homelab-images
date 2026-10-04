@@ -12,4 +12,8 @@ fi
 if [[ ! -e "$HOME/.pi/agent/models.json" ]]; then
   cp /etc/paseo-defaults/pi-models.json "$HOME/.pi/agent/models.json"
 fi
+# Preserve the upstream Node ABI without changing PATH for spawned agents.
+if [[ $# == 0 ]]; then
+  exec /usr/local/bin/paseo-docker-entrypoint /usr/local/bin/node "$(cat /etc/paseo-server-entry)"
+fi
 exec /usr/local/bin/paseo-docker-entrypoint "$@"

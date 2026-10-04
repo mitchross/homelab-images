@@ -2,7 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "docker:pinDigests"
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigests"
   ],
   "enabledManagers": [
     "dockerfile",
@@ -17,6 +18,17 @@
         "major"
       ],
       "automerge": false
+    },
+    {
+      "matchDepNames": [
+        "@anthropic-ai/claude-code",
+        "@openai/codex",
+        "@earendil-works/pi-coding-agent"
+      ],
+      "groupName": "coding agents",
+      "schedule": [
+        "before 6am on monday"
+      ]
     }
   ],
   "customManagers": [

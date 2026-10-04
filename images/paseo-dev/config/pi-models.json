@@ -1,7 +1,7 @@
 {
   "providers": {
     "vanillax-vllm": {
-      "baseUrl": "https://litellm.vanillax.me/v1",
+      "baseUrl": "http://litellm-service.litellm.svc.cluster.local:4000/v1",
       "api": "openai-completions",
       "compat": {
         "supportsDeveloperRole": false,
@@ -53,7 +53,7 @@
       "apiKey": "LITELLM_API_KEY"
     },
     "vanillax-openrouter": {
-      "baseUrl": "https://litellm.vanillax.me/v1",
+      "baseUrl": "http://litellm-service.litellm.svc.cluster.local:4000/v1",
       "api": "openai-completions",
       "compat": {
         "supportsDeveloperRole": false,
@@ -93,7 +93,7 @@
       "apiKey": "LITELLM_API_KEY"
     },
     "vanillax-auto": {
-      "baseUrl": "https://litellm.vanillax.me/v1",
+      "baseUrl": "http://litellm-service.litellm.svc.cluster.local:4000/v1",
       "api": "openai-completions",
       "compat": {
         "supportsDeveloperRole": false,

@@ -7,6 +7,14 @@ cleanup() { docker rm -f "$name" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 # An empty home catches tools accidentally installed under the image's /home.
 docker run --rm --tmpfs /home/paseo:uid=1000,gid=1000 "$image" paseo-image-smoke
+# Exercise Cargo's writable registry and a native build as uid 1000.
+docker run --rm --tmpfs /home/paseo:uid=1000,gid=1000 "$image" bash -ec '
+  cd "$HOME"
+  cargo new --bin cargo-smoke
+  cd cargo-smoke
+  echo "itoa = \"=1.0.15\"" >> Cargo.toml
+  cargo build
+'
 if docker run --rm "$image" > /dev/null 2>&1; then
   echo 'Daemon unexpectedly started without a password' >&2
   exit 1
@@ -26,4 +34,13 @@ if [[ $ready != true ]]; then docker logs "$name"; exit 1; fi
 [[ $(curl -s -o /dev/null -w '%{http_code}' "$origin/api/status") == 401 ]]
 [[ $(curl -s -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer wrong' "$origin/api/status") == 401 ]]
 [[ $(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $password" "$origin/api/status") == 200 ]]
+# The daemon must keep the bundled Node ABI; agents retain mise's Node.
+docker exec "$name" bash -ec '
+  expected=$(readlink -f /usr/local/bin/node)
+  found=false
+  for process in /proc/[0-9]*/exe; do
+    if [[ $(readlink "$process" || true) == "$expected" ]]; then found=true; fi
+  done
+  [[ $found == true ]]
+'
 echo 'Fresh-home tools, password requirement, bundled UI, health and HTTP authentication passed.'

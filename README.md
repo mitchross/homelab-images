@@ -26,6 +26,9 @@ Provide secrets at runtime through ESO: daemon password, provider credentials,
 Git credentials, and separately authorized Omni/Kubernetes/Proxmox access.
 Fresh provider logins persist in the home volume. The image contains no copied
 local authentication or history. Pi defaults include the workstation model definitions and pinned extensions.
+Paseo uses its bundled Node runtime; development commands use Node 24.
+Claude auto-updates are disabled so image updates own its version.
+Pi uses the in-cluster LiteLLM service; existing home settings are preserved on upgrade.
 Supply `LITELLM_API_KEY` (and optionally `OPENROUTER_API_KEY`) at runtime.
 Desktop-only bridges and local authentication are not copied.
 
@@ -33,6 +36,23 @@ The Docker CLI needs a separately configured remote Docker engine to build or
 run containers. iOS/watch builds need a Mac runner. Antigravity requires its own
 login and Paseo drives it in full-access mode; its interactive permission and
 transcript replay limitations still apply.
+
+## Personal agent configuration
+
+Keep personal skills, rules, agent definitions, and sanitized plugin/MCP manifests
+in a separate private configuration repository. Do not copy workstation `.claude`,
+`.codex`, or `.pi` directories into this public build context.
+
+On first deployment, restore the reviewed bundle into the persistent home and
+recreate skill links relative to `/home/paseo/.agents/skills`. Rewrite local paths
+and inspect hooks before enabling them. Install plugins from their recorded sources
+and versions rather than copying caches. Project `CLAUDE.md`, `AGENTS.md`, and
+repository-scoped skills arrive with each project checkout.
+
+Supply MCP credentials through runtime secrets or fresh authentication. Desktop
+bridges and app-hosted connectors require separate compatibility checks; a copied
+skill does not provision its tools. Preserve existing settings during subsequent
+image upgrades. This configuration migration remains a deployment prerequisite.
 
 ## Optional Paseo plugins
 
@@ -61,7 +81,9 @@ Renovate proposes digest updates. Never merge or deploy automatically.
 Renovate manages base images, Actions and mise tool pins once installed for this
 repository. Agent versions are tracked Dockerfile arguments; Antigravity's release URL
 and SHA512 are recorded in `agy-release.json` from Google's release manifest.
-Update the Antigravity manifest explicitly. A weekly workflow rebuilds OS packages; re-run it for urgent security fixes
+Update the Antigravity manifest explicitly. The mise bootstrap and 1Password CLI
+version/checksum pairs require manual updates together; Renovate tracks the tools
+installed by mise. Coding agent updates are grouped weekly. A weekly workflow rebuilds OS packages; re-run it for urgent security fixes
 and record the new resulting digest in the deployment PR. A rollback uses the
 previous digest; back up home/workspace before upgrades that change stored data.
 

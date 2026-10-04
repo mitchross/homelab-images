@@ -65,6 +65,7 @@ RUN chmod 0755 /usr/local/bin/paseo-image-smoke /usr/local/bin/paseo-dev-entrypo
 LABEL org.opencontainers.image.source="https://github.com/mitchross/homelab-images" \
       org.opencontainers.image.description="Paseo development workstation with coding agents, language runtimes, and homelab CLIs"
 FROM tools AS runtime
+ENV DISABLE_AUTOUPDATER=1
 USER 1000:1000
 WORKDIR /workspace
 RUN paseo-image-smoke
