@@ -1,0 +1,16 @@
+{
+  "defaultProvider": "vanillax-vllm",
+  "defaultModel": "qwen3.8-27b",
+  "defaultThinkingLevel": "xhigh",
+  "packages": [
+    "/opt/pi-packages/node_modules/@dreki-gg/pi-lsp",
+    "/opt/pi-packages/node_modules/@d3ara1n/pi-ask-user",
+    "/opt/pi-packages/node_modules/pi-web-access",
+    "/opt/pi-packages/node_modules/pi-mcp-adapter",
+    "/opt/pi-packages/node_modules/@narumitw/pi-chrome-devtools",
+    "/opt/pi-packages/node_modules/@narumitw/pi-subagents",
+    "/opt/pi-packages/node_modules/@narumitw/pi-goal",
+    "/opt/pi-packages/node_modules/@narumitw/pi-statusline",
+    "/opt/pi-packages/node_modules/pi-plan"
+  ]
+}

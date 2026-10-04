@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "enabledManagers": [
+    "dockerfile",
+    "github-actions",
+    "mise",
+    "npm",
+    "custom.regex"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "matchDepNames": [
+        "@anthropic-ai/claude-code",
+        "@openai/codex",
+        "@earendil-works/pi-coding-agent"
+      ],
+      "groupName": "coding agents",
+      "schedule": [
+        "before 6am on monday"
+      ]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^images/.+/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "semver"
+    }
+  ]
+}
