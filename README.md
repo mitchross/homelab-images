@@ -9,5 +9,6 @@ Container images for mitchross's homelab. Each image has its own README.
 | Folder | Holds |
 | --- | --- |
 | `images/<name>/` | Dockerfile, config, and README for one image |
-| `deploy/` | Generic deployment examples for other clusters |
 | `scripts/` | Image tests |
+
+Deployment docs live in [talos-argocd-proxmox](https://github.com/mitchross/talos-argocd-proxmox/tree/main/docs). Each image README links to its guide.
