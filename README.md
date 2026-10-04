@@ -69,6 +69,18 @@ on the deployed daemon after its baseline works:
 Plugins execute with the daemon user's access to credentials and infrastructure.
 Pin and test selected versions; directory catalog checks are not a source audit.
 
+## Local builds on CachyOS
+
+Run `bash scripts/publish-paseo-local.sh` from a clean committed checkout. It builds
+with the local Docker cache, runs the same fresh-home tests as CI, and pushes a
+unique `local-<commit>-<timestamp>` candidate to GHCR. Your GitHub CLI identity needs
+package write access. Registry login uses a temporary Docker configuration.
+
+Subsequent local builds reuse layers; pushes upload only missing registry layers.
+The command prints a digest for the deployment PR and never updates `main`.
+Local Docker cache and GitHub Actions cache are separate. A local push alone does
+not warm GitHub's build cache; Actions retains its own cache after a successful run.
+
 ## Updates and publishing
 
 Fork pull requests build and test without publishing. Same-repository PRs use
