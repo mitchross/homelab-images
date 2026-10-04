@@ -50,7 +50,7 @@
           }
         }
       ],
-      "apiKey": "LITELLM_API_KEY"
+      "apiKey": "$LITELLM_API_KEY"
     },
     "vanillax-openrouter": {
       "baseUrl": "http://litellm-service.litellm.svc.cluster.local:4000/v1",
@@ -90,7 +90,7 @@
           }
         }
       ],
-      "apiKey": "LITELLM_API_KEY"
+      "apiKey": "$LITELLM_API_KEY"
     },
     "vanillax-auto": {
       "baseUrl": "http://litellm-service.litellm.svc.cluster.local:4000/v1",
@@ -130,7 +130,7 @@
           }
         }
       ],
-      "apiKey": "LITELLM_API_KEY"
+      "apiKey": "$LITELLM_API_KEY"
     },
     "vanillax-direct-openrouter": {
       "baseUrl": "https://openrouter.ai/api/v1",
@@ -170,7 +170,7 @@
           }
         }
       ],
-      "apiKey": "OPENROUTER_API_KEY"
+      "apiKey": "$OPENROUTER_API_KEY"
     }
   }
 }

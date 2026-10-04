@@ -15,6 +15,8 @@ docker run --rm --tmpfs /home/paseo:uid=1000,gid=1000 "$image" bash -ec '
   echo "itoa = \"=1.0.15\"" >> Cargo.toml
   cargo build
 '
+# Paseo terminals are interactive non-login bash; the Pi launchers must load there.
+docker run --rm --tmpfs /home/paseo:uid=1000,gid=1000 "$image" bash -ic 'type pi-qwen-only pi-withflash pi-flash' >/dev/null
 if docker run --rm "$image" > /dev/null 2>&1; then
   echo 'Daemon unexpectedly started without a password' >&2
   exit 1

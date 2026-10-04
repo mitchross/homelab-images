@@ -60,6 +60,8 @@ RUN bash /opt/paseo-image/install-agy.sh
 COPY scripts/smoke.sh /usr/local/bin/paseo-image-smoke
 COPY scripts/entrypoint.sh /usr/local/bin/paseo-dev-entrypoint
 COPY config/ /etc/paseo-defaults/
+# The home volume starts empty, so load shell defaults from /etc, not ~/.bashrc.
+RUN echo '[ -r /etc/paseo-defaults/pi-aliases.sh ] && . /etc/paseo-defaults/pi-aliases.sh' >> /etc/bash.bashrc
 RUN chmod 0755 /usr/local/bin/paseo-image-smoke /usr/local/bin/paseo-dev-entrypoint \
     && chmod -R a+rX /opt/mise /opt/agents \
     && mkdir -p /home/paseo/.cache /workspace \
