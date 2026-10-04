@@ -57,6 +57,10 @@ bash scripts/publish-paseo-local.sh
 ```
 
 Commit your changes first. The GitHub CLI token must have package write access.
+To use a token stored in 1Password, set `GHCR_TOKEN_REF` to its `op://` reference.
+The script pipes the value directly to Docker. Set `GHCR_USERNAME` if the package
+owner differs from your GitHub CLI identity. Do not put the token value in a command.
+
 Docker keeps local build layers. GHCR receives only layers that it does not have.
 The script prints the published digest. Use that digest in the deployment PR.
 Local builds do not populate the GitHub Actions cache.

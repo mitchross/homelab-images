@@ -15,6 +15,11 @@ bash scripts/test-paseo.sh "$image"
 # Keep login credentials out of the normal Docker config and build context.
 config=$(mktemp -d)
 trap 'rm -rf "$config"' EXIT
-gh auth token | docker --config "$config" login ghcr.io --username "$(gh api user --jq .login)" --password-stdin
+registry_user=${GHCR_USERNAME:-$(gh api user --jq .login)}
+if [[ -n ${GHCR_TOKEN_REF:-} ]]; then
+  op read "$GHCR_TOKEN_REF" | docker --config "$config" login ghcr.io --username "$registry_user" --password-stdin
+else
+  gh auth token | docker --config "$config" login ghcr.io --username "$registry_user" --password-stdin
+fi
 docker --config "$config" push "$image"
 docker inspect --format '{{index .RepoDigests 0}}' "$image"
