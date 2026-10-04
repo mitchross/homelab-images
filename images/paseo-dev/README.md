@@ -81,7 +81,7 @@ Keep credentials out of the image and Git. ESO supplies Kubernetes Secrets from
 1Password. Installing a CLI does not grant permission to its service.
 
 Expose port `6767` through an HTTPS gateway that supports WebSockets. Set
-`PASEO_ALLOWED_HOSTNAMES` for the deployed hostname. Use `/api/health` for probes.
+`PASEO_HOSTNAMES` for the deployed hostname. Use `/api/health` for probes.
 Relay access and service publishing are disabled by default.
 
 ## Agent settings, skills, and memory
