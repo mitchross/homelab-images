@@ -1,0 +1,40 @@
+# homelab-images
+
+> Container images for mitchross's homelab. The main image is ghcr.io/mitchross/paseo-dev: Paseo (a browser workspace for coding agents) with Claude Code, Codex, Pi, compilers, and cluster CLIs. Use deploy/kubernetes/paseo to run it on any Kubernetes cluster.
+
+Rules for agents that deploy Paseo:
+- Ask the user for hostname, Gateway API or Ingress, StorageClass, and LLM server URL before editing.
+- Keep secrets out of Git. Create the PASEO_PASSWORD Secret with kubectl.
+- Pin the image by digest. The main tag moves with each build.
+- Use Recreate, not RollingUpdate. Both volumes are ReadWriteOnce.
+- Write Pi apiKey values as "$NAME". A bare name is sent as a literal key.
+- Set PASEO_HOSTNAMES to every DNS name, or requests fail with 403 Host not allowed.
+- Set PASEO_TRUSTED_PROXIES behind a TLS proxy, or the web UI cannot auto-connect.
+- Never delete the namespace or PVCs: they hold the user's logins and code.
+
+## Guides
+
+- [Run Paseo on your Kubernetes cluster](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/README.md): step-by-step deploy with plain manifests
+- [paseo-dev image guide](https://raw.githubusercontent.com/mitchross/homelab-images/main/images/paseo-dev/README.md): what is installed, Docker Compose, first connection, one-time logins, Pi, security
+
+## Kubernetes manifests
+
+- [kustomization.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/kustomization.yaml)
+- [namespace.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/namespace.yaml)
+- [pvc.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/pvc.yaml)
+- [deployment.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/deployment.yaml)
+- [service.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/service.yaml)
+- [httproute.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/httproute.yaml): Gateway API route
+- [ingress.yaml](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/ingress.yaml): ingress-nginx alternative
+- [pi-models.example.json](https://raw.githubusercontent.com/mitchross/homelab-images/main/deploy/kubernetes/paseo/pi-models.example.json): Pi model list for your own LLM server
+
+## Image internals
+
+- [Dockerfile](https://raw.githubusercontent.com/mitchross/homelab-images/main/images/paseo-dev/Dockerfile)
+- [mise.toml](https://raw.githubusercontent.com/mitchross/homelab-images/main/images/paseo-dev/mise.toml): language runtimes and CLI versions
+- [entrypoint.sh](https://raw.githubusercontent.com/mitchross/homelab-images/main/images/paseo-dev/scripts/entrypoint.sh): first-boot Pi seeds, password check
+
+## Optional
+
+- [Full GitOps example](https://github.com/mitchross/talos-argocd-proxmox/tree/main/my-apps/development/paseo): Argo CD, External Secrets, Longhorn, Kopiur backups
+- [Paseo docs](https://paseo.sh/docs): upstream Paseo

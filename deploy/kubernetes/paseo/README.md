@@ -14,6 +14,20 @@ flowchart LR
     Pod --> Work[(paseo-workspace 50Gi)]
 ```
 
+## Use a coding agent
+
+Paste this prompt into Claude Code, Codex, or Pi, inside your own cluster repo:
+
+```text
+Read https://raw.githubusercontent.com/mitchross/homelab-images/main/llms.txt and every link in it.
+Deploy Paseo to my Kubernetes cluster from deploy/kubernetes/paseo.
+Before you change anything, ask me for: hostname, Gateway API or Ingress, StorageClass, and my LLM server URL.
+Keep secrets out of Git. Create the password Secret with kubectl and show me the command first.
+```
+
+[`llms.txt`](../../../llms.txt) lists raw links to this guide, the manifests, and the image guide.
+Review every command the agent proposes before it runs.
+
 ## What you need
 
 - A cluster with an `amd64` node. The image has no `arm64` build.
