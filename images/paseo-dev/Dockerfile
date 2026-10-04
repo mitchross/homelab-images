@@ -46,7 +46,9 @@ RUN npm install --global --prefix /opt/agents \
 COPY pi-packages/ /opt/pi-packages/
 RUN npm ci --prefix /opt/pi-packages --omit=dev && npm cache clean --force
 RUN chown -R 1000:1000 /opt/cargo
-RUN npm install --global --prefix /opt/agents pnpm@12.9.1 && npm cache clean --force
+# renovate: datasource=npm depName=pnpm
+ARG PNPM_VERSION=12.9.1
+RUN npm install --global --prefix /opt/agents "pnpm@$PNPM_VERSION" && npm cache clean --force
 ARG OP_VERSION=2.39.0
 ARG OP_SHA256=6fba7f376b6c6dec49f41b06408930a43ad064cce103c6a2ce5b3d0413a86434
 RUN curl -fsSL "https://cache.agilebits.com/dist/1P/op2/pkg/v${OP_VERSION}/op_linux_amd64_v${OP_VERSION}.zip" -o /tmp/op.zip \
