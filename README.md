@@ -1,8 +1,9 @@
 # Homelab images
 
 Build definitions for mitchross's shared development environments and customized
-upstream software. Deployment manifests and ExternalSecrets belong in
+upstream software. This cluster's deployment manifests and ExternalSecrets belong in
 [mitchross/talos-argocd-proxmox](https://github.com/mitchross/talos-argocd-proxmox).
+`deploy/` holds generic examples for other clusters.
 Never put credentials or workstation histories in this repository or an image.
 
 ## Images
@@ -10,6 +11,7 @@ Never put credentials or workstation histories in this repository or an image.
 | Image | Guide |
 | --- | --- |
 | Paseo development workstation | [Build, run, configure, and update](images/paseo-dev/README.md) |
+| Paseo on another Kubernetes cluster | [Plain manifests, step by step](deploy/kubernetes/paseo/README.md) |
 
 ## Optional Paseo plugins
 
