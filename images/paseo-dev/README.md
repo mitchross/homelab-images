@@ -76,6 +76,8 @@ to `PASEO_HOSTNAMES`.
 
 ## Kubernetes
 
+**Step-by-step guide with ready manifests:** [deploy/kubernetes/paseo](../../deploy/kubernetes/paseo/README.md).
+
 A complete GitOps example lives in
 [talos-argocd-proxmox/my-apps/development/paseo](https://github.com/mitchross/talos-argocd-proxmox/tree/main/my-apps/development/paseo).
 It uses Argo CD, External Secrets, Longhorn, and Kopiur backups. Copy what fits.
