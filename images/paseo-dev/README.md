@@ -29,6 +29,7 @@ flowchart LR
 | Chromium | Browser automation |
 | kubectl, Helm, Kustomize, Argo CD, Talos, Omni, Cilium | Cluster operations |
 | GitHub CLI, Docker CLI, 1Password CLI, Temporal CLI | External tools |
+| Mink, chezmoi, crane | Shared agent memory, dotfiles, registry digest lookups |
 
 Exact versions live in the [Dockerfile](Dockerfile), [mise.toml](mise.toml), and
 [Pi package pins](pi-packages/package.json).
@@ -45,7 +46,8 @@ Exact versions live in the [Dockerfile](Dockerfile), [mise.toml](mise.toml), and
 | Optional env | `PASEO_HOSTNAMES`, `PASEO_TRUSTED_PROXIES`, `PASEO_RELAY_ENABLED` (default `false`) |
 
 The Paseo daemon uses the base image's Node runtime. Shell commands use Node 24 from mise.
-Claude Code auto-updates are off. A new image build updates Claude Code.
+Claude Code and Mink auto-updates are off. A new image build updates them.
+Keep `MINK_VERSION` equal to the workstations' Mink, or Mink regenerates the repos' hook files.
 
 ## First-boot seeds and launchers
 
