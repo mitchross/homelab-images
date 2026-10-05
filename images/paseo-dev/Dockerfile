@@ -49,6 +49,10 @@ RUN chown -R 1000:1000 /opt/cargo
 # renovate: datasource=npm depName=pnpm
 ARG PNPM_VERSION=12.9.1
 RUN npm install --global --prefix /opt/agents "pnpm@$PNPM_VERSION" && npm cache clean --force
+# Keep equal to the workstations' Mink: a version mismatch makes Mink regenerate the repos' hook files.
+# renovate: datasource=npm depName=@drewpayment/mink
+ARG MINK_VERSION=0.16.0
+RUN npm install --global --prefix /opt/agents "@drewpayment/mink@$MINK_VERSION" && npm cache clean --force
 ARG OP_VERSION=2.39.0
 ARG OP_SHA256=6fba7f376b6c6dec49f41b06408930a43ad064cce103c6a2ce5b3d0413a86434
 RUN curl -fsSL "https://cache.agilebits.com/dist/1P/op2/pkg/v${OP_VERSION}/op_linux_amd64_v${OP_VERSION}.zip" -o /tmp/op.zip \
@@ -69,7 +73,8 @@ RUN chmod 0755 /usr/local/bin/paseo-image-smoke /usr/local/bin/paseo-dev-entrypo
 LABEL org.opencontainers.image.source="https://github.com/mitchross/homelab-images" \
       org.opencontainers.image.description="Paseo development workstation with coding agents, language runtimes, and homelab CLIs"
 FROM tools AS runtime
-ENV DISABLE_AUTOUPDATER=1
+ENV DISABLE_AUTOUPDATER=1 \
+    MINK_DISABLE_AUTO_UPDATE=1
 USER 1000:1000
 WORKDIR /workspace
 RUN paseo-image-smoke
