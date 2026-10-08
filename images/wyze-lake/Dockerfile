@@ -35,7 +35,7 @@ RUN apt-get update \
     && mkdir -p /home/wyze && chown 1000:1000 /home/wyze
 COPY --from=sdk /opt/agora/agora /opt/agora/agora
 COPY --from=sdk /usr/local/bin/go2rtc /usr/local/bin/go2rtc
-COPY protocol.py receiver.py /opt/wyze-lake/
+COPY protocol.py receiver.py web_auth.py /opt/wyze-lake/
 ENV PYTHONPATH=/opt/agora:/opt/wyze-lake \
     LD_LIBRARY_PATH=/opt/agora/agora/agora_sdk \
     PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 HOME=/home/wyze

@@ -5,11 +5,14 @@ Receive Cam Pan v4 video with Agora's native Linux SDK. Publish H265 video throu
 ```mermaid
 flowchart LR
   Bridge[Wyze Bridge login] -->|read-only auth state| Receiver[Linux Lake receiver]
+  Web[Official Web View login] -->|session seed| Refresh[Cookie and token refresh]
+  Refresh -->|private persistent state| Receiver
   Camera[Cam Pan v4] -->|encrypted Agora video| Receiver
   Receiver --> FFmpeg --> go2rtc --> RTSP[RTSP consumer]
 ```
 
-This image receives video. Wyze Bridge maintains the account login and refreshes the authentication state.
+This image receives video. Use Wyze Bridge's authentication file or an official Web View session.
+Web View mode refreshes account tokens and persists the returned session cookie. It takes priority when configured.
 Find deployment manifests in [talos-argocd-proxmox](https://github.com/mitchross/talos-argocd-proxmox/tree/main/my-apps/home-automation/wyze-bridge).
 
 ## Build and test
@@ -22,6 +25,7 @@ bash scripts/test-wyze-lake.sh wyze-lake:local
 ```
 
 The test loads the native SDK without network access. It decodes generated H265 video through RTSP.
+It checks session rotation, restart recovery, Secret updates, token rejection, and refresh backoff with simulated responses.
 The test uses UID 1000, an empty home, and a read-only root filesystem.
 It does not contact a camera or prove account authentication.
 
@@ -32,7 +36,9 @@ Copy the published digest from its job summary for deployment review.
 
 | Setting | Requirement |
 | --- | --- |
-| `WYZE_AUTH_STATE` | Required path to Wyze Bridge's JSON state file, mounted read-only. |
+| `WYZE_AUTH_STATE` | Path to Wyze Bridge's JSON state file, mounted read-only. Required unless Web View mode is configured. |
+| `WYZE_WEB_SESSION_FILE` | Optional path to a read-only file containing the `services.wyze.com` cookie named `session`. |
+| `WYZE_WEB_STATE` | Private JSON state path on writable persistent storage. Required with `WYZE_WEB_SESSION_FILE`. |
 | `WYZE_CAMERA_NAME` | Required camera nickname. The name must identify exactly one Cam Pan v4. |
 | `WYZE_STREAM_NAME` | RTSP stream name. Default: `camera`. Use letters, numbers, underscores, or hyphens. |
 | `WYZE_RTSP_PORT` | RTSP TCP listen port. Default: `8554`. |
@@ -42,7 +48,20 @@ Copy the published digest from its job summary for deployment review.
 The authentication file contains account access and refresh tokens. Keep it outside the image and build context.
 Mount its containing directory so atomic file replacements remain visible. UID 1000 must have read access.
 The receiver discovers the camera through Wyze's API. It needs no HAR file or saved camera identifiers.
-It reads the authentication file again for each API call. Wyze Bridge must keep that file current.
+In Bridge mode, it reads the authentication file again for each API call. Wyze Bridge must keep that file current.
+
+In Web View mode, obtain the seed from a successful login at [my.wyze.com](https://my.wyze.com).
+The developer portal's OAuth token lacks camera permissions. Use the Web View service session cookie.
+Mount the seed's directory read-only so projected Secret replacements remain visible.
+The receiver detects changed seed content without restarting the pod.
+It refreshes account authentication hourly, before token expiry, and after a camera API returns HTTP 401.
+It saves the renewed cookie and token atomically with mode 0600 inside a mode 0700 directory.
+Keep that directory across receiver and pod replacements. UID 1000 must own the state files.
+Point `WYZE_WEB_STATE` into a private child directory of the persistent mount, such as `/session/web/state.json`.
+The original seed stays unchanged; subsequent refreshes use the persisted cookie.
+Failed refreshes retain a usable token during brief outages. Revoked sessions require a new browser login.
+Refresh failures use persistent backoff, including across process restarts. Tokens and cookies never appear in application logs.
+This refresh protocol is undocumented. A successful refresh does not establish indefinite session validity.
 
 Mount writable temporary storage at `/tmp`. Mount an empty writable home at `/home/wyze` when using a read-only filesystem.
 Keep SDK logs private. The receiver creates its runtime directory with mode 0700.

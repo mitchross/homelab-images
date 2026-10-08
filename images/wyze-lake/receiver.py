@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 from protocol import WyzeAPI
+from web_auth import WebSessionAuth
 
 RUNTIME = Path(os.environ.get("WYZE_RUNTIME_DIR", "/tmp/wyze-lake"))
 STOP = threading.Event()
@@ -119,7 +120,12 @@ def viewer(url):
     from agora.rtc.rtc_connection_observer import IRTCConnectionObserver
     from agora.rtc.video_encoded_frame_observer import IVideoEncodedFrameObserver
 
-    api = WyzeAPI(os.environ["WYZE_AUTH_STATE"])
+    web_auth = None
+    if os.environ.get("WYZE_WEB_SESSION_FILE"):
+        web_auth = WebSessionAuth(
+            os.environ["WYZE_WEB_SESSION_FILE"], os.environ["WYZE_WEB_STATE"]
+        )
+    api = WyzeAPI(os.environ.get("WYZE_AUTH_STATE", "/tmp/unused"), web_auth)
     camera = api.camera(os.environ["WYZE_CAMERA_NAME"])
     uid = random.randint(30000, 60000)
     session, params, key, salt = api.session(camera, uid)
@@ -297,7 +303,12 @@ def rtsp_server(stream, port):
 
 
 def supervise():
-    for key in ("WYZE_AUTH_STATE", "WYZE_CAMERA_NAME"):
+    auth_keys = (
+        ("WYZE_WEB_SESSION_FILE", "WYZE_WEB_STATE")
+        if os.environ.get("WYZE_WEB_SESSION_FILE")
+        else ("WYZE_AUTH_STATE",)
+    )
+    for key in (*auth_keys, "WYZE_CAMERA_NAME"):
         if not os.environ.get(key):
             raise ValueError(key + " is required")
     stream = os.environ.get("WYZE_STREAM_NAME", "camera")
