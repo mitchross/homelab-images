@@ -28,7 +28,7 @@ flowchart LR
 | Rust, Go, .NET, Java, Maven, Gradle | Compile and test projects |
 | Chromium | Browser automation |
 | kubectl, Helm, Kustomize, Argo CD, Talos, Omni, Cilium | Cluster operations |
-| GitHub CLI, Docker CLI, 1Password CLI, Temporal CLI | External tools |
+| GitHub CLI, Gitea CLI (`tea`), Docker CLI, 1Password CLI, Temporal CLI | External tools |
 | Mink, chezmoi, crane | Shared agent memory, dotfiles, registry digest lookups |
 
 Exact versions live in the [Dockerfile](Dockerfile), [mise.toml](mise.toml), and
