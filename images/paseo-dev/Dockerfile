@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/getpaseo/paseo:0.10.3@sha256:100ae017b9fc45f167668be27e6abd82c5f7b14d512eb7f52a33f653a13bc34e AS tools
+FROM ghcr.io/getpaseo/paseo:0.11.1@sha256:664a58a73cac82448b3c72558129534e3be52a18b5f4e801ae446f646bb5d8c1 AS tools
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TARGETARCH
@@ -58,6 +58,11 @@ ARG OP_SHA256=6fba7f376b6c6dec49f41b06408930a43ad064cce103c6a2ce5b3d0413a86434
 RUN curl -fsSL "https://cache.agilebits.com/dist/1P/op2/pkg/v${OP_VERSION}/op_linux_amd64_v${OP_VERSION}.zip" -o /tmp/op.zip \
     && echo "$OP_SHA256  /tmp/op.zip" | sha256sum -c - \
     && unzip -j /tmp/op.zip op -d /usr/local/bin && chmod 0755 /usr/local/bin/op && rm /tmp/op.zip
+ARG TEA_VERSION=0.16.0
+ARG TEA_SHA256=92e0c966c98be0c6ca4c80b1912d08ff7887c7cb55e123542fa541842d875149
+RUN curl -fsSL "https://gitea.com/gitea/tea/releases/download/v${TEA_VERSION}/tea-${TEA_VERSION}-linux-amd64.xz" -o /tmp/tea.xz \
+    && echo "$TEA_SHA256  /tmp/tea.xz" | sha256sum -c - \
+    && xz -dc /tmp/tea.xz > /usr/local/bin/tea && chmod 0755 /usr/local/bin/tea && rm /tmp/tea.xz
 COPY agy-release.json /opt/paseo-image/agy-release.json
 COPY scripts/install-agy.sh /opt/paseo-image/install-agy.sh
 RUN bash /opt/paseo-image/install-agy.sh
