@@ -12,26 +12,17 @@ fi
 if [[ ! -e "$HOME/.pi/agent/models.json" ]]; then
   cp /etc/paseo-defaults/pi-models.json "$HOME/.pi/agent/models.json"
 fi
-# Rebuild the Gitea login from the runtime Secret on every start, so a rotated token applies.
-if [[ -n "${GITEA_URL:-}" && -n "${GITEA_TOKEN:-}" ]]; then
-  tea_config="$HOME/.config/tea/config.yml"
-  mkdir -p "${tea_config%/*}"
-  [[ -s "$tea_config" ]] || echo '{}' > "$tea_config"
-  GITEA_LOGIN_NAME="${GITEA_LOGIN_NAME:-gitea}" GITEA_USER="${GITEA_USER:-}" \
-    GITEA_HOST="$(sed -E 's#^https?://([^/:]+).*#\1#' <<<"$GITEA_URL")" \
-    yq -i '.logins = [(.logins // [])[] | select(.name != strenv(GITEA_LOGIN_NAME))]
-      + [{"name": strenv(GITEA_LOGIN_NAME), "url": strenv(GITEA_URL), "token": strenv(GITEA_TOKEN),
-          "default": true, "ssh_host": strenv(GITEA_HOST), "user": strenv(GITEA_USER)}]' "$tea_config"
-  chmod 0600 "$tea_config"
-  git config --global --replace-all "credential.$GITEA_URL.helper" '!tea login helper'
-fi
-# Git owns the keys in PASEO_MANAGED_CONFIG; each start merges them over the user's config.json.
+# Git owns each second-level key in PASEO_MANAGED_CONFIG: it replaces it whole, and null deletes it.
 if [[ -n "${PASEO_MANAGED_CONFIG:-}" ]]; then
   paseo_config="${PASEO_HOME:-$HOME/.paseo}/config.json"
   mkdir -p "${paseo_config%/*}"
   [[ -s "$paseo_config" ]] || echo '{}' > "$paseo_config"
-  jq -s '.[0] * .[1]' "$paseo_config" "$PASEO_MANAGED_CONFIG" > "$paseo_config.tmp"
-  mv "$paseo_config.tmp" "$paseo_config"
+  merged=$(umask 077 && mktemp "$paseo_config.XXXXXX")
+  jq -s '.[0] as $user | reduce (.[1] | to_entries[]) as $e ($user;
+    .[$e.key] = if ($e.value | type) == "object"
+      then (.[$e.key] // {}) + $e.value | with_entries(select(.value != null)) else $e.value end)' \
+    "$paseo_config" "$PASEO_MANAGED_CONFIG" > "$merged"
+  mv "$merged" "$paseo_config"
 fi
 # Preserve the upstream Node ABI without changing PATH for spawned agents.
 if [[ $# == 0 ]]; then
