@@ -7,6 +7,7 @@ import json
 import ssl
 import struct
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -56,10 +57,13 @@ def signature(body, token):
 
 
 class WyzeAPI:
-    def __init__(self, state_path):
+    def __init__(self, state_path, web_auth=None):
         self.state_path = Path(state_path)
+        self.web_auth = web_auth
 
     def auth(self):
+        if self.web_auth is not None:
+            return self.web_auth.auth()
         data = json.loads(self.state_path.read_text())["auth"]
         if not data.get("access_token") or not data.get("user_id"):
             raise ValueError("Authentication state is incomplete")
@@ -84,10 +88,15 @@ class WyzeAPI:
         request = urllib.request.Request(
             "https://" + host + path, serialized.encode(), headers
         )
-        with urllib.request.urlopen(
-            request, timeout=15, context=ssl.create_default_context()
-        ) as response:
-            data = json.load(response)
+        try:
+            with urllib.request.urlopen(
+                request, timeout=15, context=ssl.create_default_context()
+            ) as response:
+                data = json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 401 and self.web_auth is not None:
+                self.web_auth.invalidate()
+            raise
         if str(data.get("code")) != "1":
             # API messages can contain identifiers or credentials. Log only the numeric status.
             raise RuntimeError("Wyze API status " + str(data.get("code")))

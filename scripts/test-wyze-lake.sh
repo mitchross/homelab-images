@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 image=${1:?image required}
+repository=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 runtime=(--rm --user 1000:1000 --read-only --network none
   --tmpfs /tmp:uid=1000,gid=1000 --tmpfs /home/wyze:uid=1000,gid=1000)
 # SDK loading must work without a writable installation or network downloads.
@@ -13,6 +14,9 @@ if docker run "${runtime[@]}" "$image" --health; then
   echo 'Empty runtime unexpectedly reported healthy' >&2
   exit 1
 fi
+docker run "${runtime[@]}" \
+  -v "$repository/images/wyze-lake/test_web_auth.py:/tmp/test_web_auth.py:ro" \
+  --entrypoint python3 "$image" /tmp/test_web_auth.py
 docker run -i "${runtime[@]}" --entrypoint python3 "$image" - <<'PY'
 import os
 import subprocess

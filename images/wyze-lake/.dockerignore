@@ -2,3 +2,4 @@
 !Dockerfile
 !protocol.py
 !receiver.py
+!web_auth.py
