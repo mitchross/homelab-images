@@ -22,8 +22,16 @@ if docker run --rm "$image" > /dev/null 2>&1; then
   exit 1
 fi
 password=$(openssl rand -hex 32)
+managed=$(mktemp)
+trap 'cleanup; rm -f "$managed"' EXIT
+cat > "$managed" <<'JSON'
+{"daemon": {"mcp": {"injectIntoAgents": true}, "browserTools": {"enabled": true}, "retired": null,
+  "agentProfiles": [{"id": "review", "name": "Review", "provider": "claude", "model": "claude-opus-5-5"}]}}
+JSON
+chmod 0644 "$managed"
 docker run -d --name "$name" --tmpfs /home/paseo:uid=1000,gid=1000 \
-  -e "PASEO_PASSWORD=$password" -p 127.0.0.1::6767 "$image" >/dev/null
+  -e "PASEO_PASSWORD=$password" -e PASEO_MANAGED_CONFIG=/etc/paseo-managed.json \
+  -v "$managed:/etc/paseo-managed.json:ro" -p 127.0.0.1::6767 "$image" >/dev/null
 port=$(docker inspect --format '{{(index (index .NetworkSettings.Ports "6767/tcp") 0).HostPort}}' "$name")
 origin="http://127.0.0.1:$port"
 ready=false
@@ -45,4 +53,18 @@ docker exec "$name" bash -ec '
   done
   [[ $found == true ]]
 '
-echo 'Fresh-home tools, password requirement, bundled UI, health and HTTP authentication passed.'
+# Git-managed Paseo settings must survive the daemon's own config load.
+docker exec "$name" jq -e '.daemon.mcp.injectIntoAgents and .daemon.browserTools.enabled
+  and .daemon.agentProfiles[0].id == "review"' /home/paseo/.paseo/config.json >/dev/null
+# Managed keys replace user values whole, null deletes, and unmanaged keys stay; the result is private.
+docker run --rm --tmpfs /home/paseo:uid=1000,gid=1000 -e PASEO_MANAGED_CONFIG=/etc/paseo-managed.json \
+  -v "$managed:/etc/paseo-managed.json:ro" --entrypoint bash "$image" -ec '
+  mkdir -p ~/.paseo
+  echo "{\"daemon\": {\"mcp\": {\"stale\": true}, \"relay\": {\"enabled\": false}, \"retired\": {},
+    \"agentProfiles\": [{\"id\": \"ui\"}]}}" > ~/.paseo/config.json
+  /usr/local/bin/paseo-dev-entrypoint true
+  jq -e ".daemon | (.mcp | has(\"stale\") | not) and .relay.enabled == false
+    and (.agentProfiles | map(.id)) == [\"review\"] and .browserTools.enabled and (has(\"retired\") | not)" ~/.paseo/config.json >/dev/null
+  [[ $(stat -c %a ~/.paseo/config.json) == 600 ]]
+'
+echo 'Fresh-home tools, password requirement, bundled UI, health, HTTP authentication, and managed config passed.'
