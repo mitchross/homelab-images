@@ -44,6 +44,7 @@ Exact versions live in the [Dockerfile](Dockerfile), [mise.toml](mise.toml), and
 | Volumes | `/home/paseo` (logins, settings) and `/workspace` (code) |
 | Required env | `PASEO_PASSWORD`; the container exits without it |
 | Optional env | `PASEO_HOSTNAMES`, `PASEO_TRUSTED_PROXIES`, `PASEO_RELAY_ENABLED` (default `false`) |
+| Optional runtime config | `GITEA_URL` + `GITEA_TOKEN` (+ `GITEA_LOGIN_NAME`, `GITEA_USER`); `PASEO_MANAGED_CONFIG` (path to a JSON file) |
 
 The Paseo daemon uses the base image's Node runtime. Shell commands use Node 24 from mise.
 Claude Code and Mink auto-updates are off. A new image build updates them.
@@ -58,6 +59,17 @@ The seeded providers point at the author's in-cluster LiteLLM. Write their `apiK
 
 Interactive bash loads [config/pi-aliases.sh](config/pi-aliases.sh) from `/etc/bash.bashrc`:
 `pi-qwen-only`, `pi-withflash`, and `pi-flash`. They use the seeded provider names.
+
+## Runtime config applied on every start
+
+Unlike the seeds, these steps run on every start. Changes in the Secret or the mounted file apply after a restart.
+
+| Input | Result |
+| --- | --- |
+| `GITEA_URL` and `GITEA_TOKEN` | The entrypoint replaces the `tea` login named `GITEA_LOGIN_NAME` (default `gitea`) and sets `!tea login helper` as the Git credential helper for that URL. Paseo detects Gitea from `tea login list`. |
+| `PASEO_MANAGED_CONFIG` | The entrypoint deep-merges that JSON over `$PASEO_HOME/config.json`. Keys in the file win, and arrays are replaced. Other keys keep the user's values. |
+
+The daemon rejects unknown config keys, so test a managed file with `paseo daemon config set` first.
 
 ## Build and test
 

@@ -22,8 +22,17 @@ if docker run --rm "$image" > /dev/null 2>&1; then
   exit 1
 fi
 password=$(openssl rand -hex 32)
+managed=$(mktemp)
+trap 'cleanup; rm -f "$managed"' EXIT
+cat > "$managed" <<'JSON'
+{"daemon": {"mcp": {"injectIntoAgents": true}, "browserTools": {"enabled": true},
+  "agentProfiles": [{"id": "review", "name": "Review", "provider": "claude", "model": "claude-opus-5-5"}]}}
+JSON
+chmod 0644 "$managed"
 docker run -d --name "$name" --tmpfs /home/paseo:uid=1000,gid=1000 \
-  -e "PASEO_PASSWORD=$password" -p 127.0.0.1::6767 "$image" >/dev/null
+  -e "PASEO_PASSWORD=$password" -e GITEA_URL=https://gitea.example.test -e GITEA_TOKEN=test-token \
+  -e GITEA_LOGIN_NAME=example -e PASEO_MANAGED_CONFIG=/etc/paseo-managed.json \
+  -v "$managed:/etc/paseo-managed.json:ro" -p 127.0.0.1::6767 "$image" >/dev/null
 port=$(docker inspect --format '{{(index (index .NetworkSettings.Ports "6767/tcp") 0).HostPort}}' "$name")
 origin="http://127.0.0.1:$port"
 ready=false
@@ -45,4 +54,10 @@ docker exec "$name" bash -ec '
   done
   [[ $found == true ]]
 '
-echo 'Fresh-home tools, password requirement, bundled UI, health and HTTP authentication passed.'
+# Runtime Gitea login and Git-managed Paseo settings must survive the daemon's own config load.
+docker exec "$name" bash -ec '
+  [[ $(yq ".logins[] | select(.name == \"example\") | .url" ~/.config/tea/config.yml) == https://gitea.example.test ]]
+  [[ $(git config --global --get-all credential.https://gitea.example.test.helper) == "!tea login helper" ]]
+  jq -e ".daemon.mcp.injectIntoAgents and .daemon.browserTools.enabled and .daemon.agentProfiles[0].id == \"review\"" ~/.paseo/config.json >/dev/null
+'
+echo 'Fresh-home tools, password requirement, bundled UI, health, HTTP authentication, Gitea login and managed config passed.'
