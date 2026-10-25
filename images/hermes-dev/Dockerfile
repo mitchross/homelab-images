@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Official Hermes Agent plus the coding agents and cluster CLIs its skills call.
-FROM docker.io/nousresearch/hermes-agent:v0.22.2@sha256:36099926da316742423544e055d4734777105ffe6341873af5459b957d0c2919
+FROM docker.io/nousresearch/hermes-agent:v0.22.5@sha256:9c5561579f3ffdf333401797094ac3a743738d6c25d40f4331c7bf77b694238d
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
