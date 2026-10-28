@@ -87,7 +87,8 @@ No Android device is required.
 
 ## Update
 
-Update pinned versions, URLs, image digests, and SHA256 values in the Dockerfile.
+Renovate proposes base image digests and go2rtc. The build checks go2rtc against GitHub's asset digest.
+Update the Agora URLs and SHA256 values and the Debian package pins by hand.
 Keep the native SDK URL aligned with the Python wrapper's expected version file.
 Rebuild the image. Run the image test with fresh storage.
 Verify live decoding, token renewal, and reconnects with an authorized camera before changing deployment manifests.

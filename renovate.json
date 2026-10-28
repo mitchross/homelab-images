@@ -29,6 +29,28 @@
       "schedule": [
         "before 6am on monday"
       ]
+    },
+    {
+      "description": "CLIs that must match a running server: bump only after Omni, Talos or Kubernetes is upgraded.",
+      "matchDepNames": [
+        "siderolabs/omni",
+        "siderolabs/talos",
+        "kubernetes/kubernetes"
+      ],
+      "groupName": "cluster CLIs",
+      "automerge": false,
+      "prBodyNotes": [
+        "Merge only after the Omni server, Talos and Kubernetes in talos-argocd-proxmox run these versions."
+      ]
+    },
+    {
+      "description": "Language toolchains in hermes-dev.",
+      "matchDepNames": [
+        "go",
+        "rust-lang/rust",
+        "rust-lang/rustup"
+      ],
+      "groupName": "toolchains"
     }
   ],
   "customManagers": [
@@ -38,9 +60,10 @@
         "/^images/.+/Dockerfile$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( extractVersion=(?<extractVersion>\\S+))?\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
       ],
       "versioningTemplate": "semver"
     }
-  ]
+  ],
+  "dependencyDashboard": true
 }

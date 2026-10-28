@@ -100,8 +100,9 @@ Never type the token value in a command. The script prints the published digest.
 ## Updates
 
 Renovate proposes base image, tool, agent, and Action updates. It groups coding
-agent updates weekly. Update the mise bootstrap, the 1Password CLI checksum pair,
-and the Antigravity release manifest by hand.
+agent updates weekly. The build checks mise and tea against their release
+checksums. Update the 1Password CLI checksum pair and the Antigravity release
+manifest by hand.
 
 GitHub Actions builds and tests each image before it publishes. Weekly builds
 skip the cache to refresh OS packages. Builds on `main` also move the `main` tag.

@@ -3,8 +3,8 @@ FROM ghcr.io/getpaseo/paseo:0.11.1@sha256:664a58a73cac82448b3c72558129534e3be52a
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TARGETARCH
+# renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
 ARG MISE_VERSION=2026.9.14
-ARG MISE_SHA256=343b133839d6a1d6c92daca90c4dbf7981dc28de8d308e5198a4ef24df8f5338
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 ARG CLAUDE_VERSION=2.1.289
 # renovate: datasource=npm depName=@openai/codex
@@ -32,7 +32,8 @@ RUN test "$TARGETARCH" = amd64 && apt-get update && apt-get install -y --no-inst
       chromium libsecret-1-0 dbus-x11 \
     && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL "https://github.com/jdx/mise/releases/download/v${MISE_VERSION}/mise-v${MISE_VERSION}-linux-x64.tar.gz" -o /tmp/mise.tar.gz \
-    && echo "$MISE_SHA256  /tmp/mise.tar.gz" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://github.com/jdx/mise/releases/download/v${MISE_VERSION}/SHASUMS256.txt" | grep " \./mise-v${MISE_VERSION}-linux-x64.tar.gz$\| mise-v${MISE_VERSION}-linux-x64.tar.gz$" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/mise.tar.gz" | sha256sum -c - \
     && tar -xzf /tmp/mise.tar.gz -C /tmp \
     && install -m 0755 /tmp/mise/bin/mise /usr/local/bin/mise \
     && rm -rf /tmp/mise /tmp/mise.tar.gz
@@ -53,15 +54,17 @@ RUN npm install --global --prefix /opt/agents "pnpm@$PNPM_VERSION" && npm cache 
 # renovate: datasource=npm depName=@drewpayment/mink
 ARG MINK_VERSION=0.16.0
 RUN npm install --global --prefix /opt/agents "@drewpayment/mink@$MINK_VERSION" && npm cache clean --force
+# 1Password publishes no Renovate-readable feed or checksum file; bump OP_VERSION and OP_SHA256 by hand.
 ARG OP_VERSION=2.39.0
 ARG OP_SHA256=6fba7f376b6c6dec49f41b06408930a43ad064cce103c6a2ce5b3d0413a86434
 RUN curl -fsSL "https://cache.agilebits.com/dist/1P/op2/pkg/v${OP_VERSION}/op_linux_amd64_v${OP_VERSION}.zip" -o /tmp/op.zip \
     && echo "$OP_SHA256  /tmp/op.zip" | sha256sum -c - \
     && unzip -j /tmp/op.zip op -d /usr/local/bin && chmod 0755 /usr/local/bin/op && rm /tmp/op.zip
+# renovate: datasource=gitea-releases depName=gitea/tea extractVersion=^v(?<version>.+)$
 ARG TEA_VERSION=0.16.0
-ARG TEA_SHA256=92e0c966c98be0c6ca4c80b1912d08ff7887c7cb55e123542fa541842d875149
 RUN curl -fsSL "https://gitea.com/gitea/tea/releases/download/v${TEA_VERSION}/tea-${TEA_VERSION}-linux-amd64.xz" -o /tmp/tea.xz \
-    && echo "$TEA_SHA256  /tmp/tea.xz" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://gitea.com/gitea/tea/releases/download/v${TEA_VERSION}/tea-${TEA_VERSION}-linux-amd64.xz.sha256" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/tea.xz" | sha256sum -c - \
     && xz -dc /tmp/tea.xz > /usr/local/bin/tea && chmod 0755 /usr/local/bin/tea && rm /tmp/tea.xz
 COPY agy-release.json /opt/paseo-image/agy-release.json
 COPY scripts/install-agy.sh /opt/paseo-image/install-agy.sh

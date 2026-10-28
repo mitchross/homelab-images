@@ -7,19 +7,21 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG CLAUDE_VERSION=2.1.304
 # renovate: datasource=npm depName=@openai/codex
 ARG CODEX_VERSION=0.163.0
+# renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
 ARG GH_VERSION=2.102.0
-ARG GH_SHA256=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
+# renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
 ARG KUBECTL_VERSION=1.37.1
-ARG KUBECTL_SHA256=65691ff77eb6fa44c908b77a1082c9f092c3b9733b5cefabec0d1104890e21a8
+# Downloads are checked against each release's published checksums.
 # omnictl must match the Omni server release; talosctl follows the cluster's Talos version.
+# renovate: datasource=github-releases depName=siderolabs/omni extractVersion=^v(?<version>.+)$
 ARG OMNICTL_VERSION=1.12.4
-ARG OMNICTL_SHA256=12b7498895ec79ac584e2ffc05f7918b9d5e987a3442be5d49525b431c7f0958
+# renovate: datasource=github-releases depName=siderolabs/talos extractVersion=^v(?<version>.+)$
 ARG TALOSCTL_VERSION=1.14.5
-ARG TALOSCTL_SHA256=ff432b68986709e6b69c563a08a2ced4232d5196b0dccd6d2e783e9d714d7d7d
+# renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.3
-ARG GO_SHA256=65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
+# renovate: datasource=github-tags depName=rust-lang/rustup
 ARG RUSTUP_VERSION=1.29.2
-ARG RUSTUP_SHA256=5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4
+# renovate: datasource=github-releases depName=rust-lang/rust
 ARG RUST_VERSION=1.99.1
 # /opt/agents/bin goes first so the pinned CLIs win over anything on the data volume.
 # Rust toolchains are read-only in the image; cargo's registry cache lives on the volume.
@@ -30,22 +32,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends tmux jq less op
       build-essential pkg-config libssl-dev protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb" -o /tmp/gh.deb \
-    && echo "$GH_SHA256  /tmp/gh.deb" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt" | grep " gh_${GH_VERSION}_linux_amd64.deb$" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/gh.deb" | sha256sum -c - \
     && dpkg -i /tmp/gh.deb && rm /tmp/gh.deb
 RUN curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /tmp/kubectl \
-    && echo "$KUBECTL_SHA256  /tmp/kubectl" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256") \
+    && echo "${sha:?no checksum}  /tmp/kubectl" | sha256sum -c - \
     && install -m 0755 /tmp/kubectl /usr/local/bin/kubectl && rm /tmp/kubectl
 RUN curl -fsSL "https://github.com/siderolabs/omni/releases/download/v${OMNICTL_VERSION}/omnictl-linux-amd64" -o /tmp/omnictl \
-    && echo "$OMNICTL_SHA256  /tmp/omnictl" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://github.com/siderolabs/omni/releases/download/v${OMNICTL_VERSION}/sha256sum.txt" | grep " omnictl-linux-amd64$" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/omnictl" | sha256sum -c - \
     && install -m 0755 /tmp/omnictl /usr/local/bin/omnictl && rm /tmp/omnictl \
     && curl -fsSL "https://github.com/siderolabs/talos/releases/download/v${TALOSCTL_VERSION}/talosctl-linux-amd64" -o /tmp/talosctl \
-    && echo "$TALOSCTL_SHA256  /tmp/talosctl" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://github.com/siderolabs/talos/releases/download/v${TALOSCTL_VERSION}/sha256sum.txt" | grep " talosctl-linux-amd64$" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/talosctl" | sha256sum -c - \
     && install -m 0755 /tmp/talosctl /usr/local/bin/talosctl && rm /tmp/talosctl
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz \
-    && echo "$GO_SHA256  /tmp/go.tgz" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz.sha256") \
+    && echo "${sha:?no checksum}  /tmp/go.tgz" | sha256sum -c - \
     && tar -C /usr/local -xzf /tmp/go.tgz && rm /tmp/go.tgz
 RUN curl -fsSL "https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/x86_64-unknown-linux-gnu/rustup-init" -o /tmp/rustup-init \
-    && echo "$RUSTUP_SHA256  /tmp/rustup-init" | sha256sum -c - \
+    && sha=$(curl -fsSL "https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/x86_64-unknown-linux-gnu/rustup-init.sha256" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/rustup-init" | sha256sum -c - \
     && chmod +x /tmp/rustup-init \
     && CARGO_HOME=/opt/rust/cargo /tmp/rustup-init -y --no-modify-path --profile minimal \
          --default-toolchain "$RUST_VERSION" --component clippy,rustfmt \
