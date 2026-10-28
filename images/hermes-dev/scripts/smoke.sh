@@ -15,4 +15,5 @@ talosctl version --client --short
 rustc --version
 cargo clippy --version
 go version
+test -f /usr/include/google/protobuf/timestamp.proto
 tmux -V

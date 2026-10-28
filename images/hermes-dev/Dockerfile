@@ -29,7 +29,7 @@ ENV PATH=/opt/agents/bin:/opt/rust/cargo/bin:/usr/local/go/bin:${PATH} \
     RUSTUP_HOME=/opt/rust/rustup \
     DISABLE_AUTOUPDATER=1
 RUN apt-get update && apt-get install -y --no-install-recommends tmux jq less openssh-client \
-      build-essential pkg-config libssl-dev protobuf-compiler \
+      build-essential pkg-config libssl-dev protobuf-compiler libprotobuf-dev \
     && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb" -o /tmp/gh.deb \
     && sha=$(curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt" | grep " gh_${GH_VERSION}_linux_amd64.deb$" | cut -d' ' -f1) \
