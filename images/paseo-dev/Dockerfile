@@ -1,16 +1,16 @@
-# syntax=docker/dockerfile:1
-FROM ghcr.io/getpaseo/paseo:0.11.1@sha256:664a58a73cac82448b3c72558129534e3be52a18b5f4e801ae446f646bb5d8c1 AS tools
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+FROM ghcr.io/getpaseo/paseo:0.13.2@sha256:fde5ff1192933bf4feebaa19ef072ff8b96d9c1078978cc0ee75c5541ff16581 AS tools
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
-ARG MISE_VERSION=2026.9.14
+ARG MISE_VERSION=2026.10.22
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.289
+ARG CLAUDE_VERSION=2.1.312
 # renovate: datasource=npm depName=@openai/codex
-ARG CODEX_VERSION=0.160.0
+ARG CODEX_VERSION=0.165.0
 # renovate: datasource=npm depName=@earendil-works/pi-coding-agent
-ARG PI_VERSION=1.0.2
+ARG PI_VERSION=1.4.0
 ENV MISE_DATA_DIR=/opt/mise \
     MISE_CACHE_DIR=/tmp/mise-cache \
     MISE_GLOBAL_CONFIG_FILE=/etc/mise/config.toml \
@@ -48,7 +48,7 @@ COPY pi-packages/ /opt/pi-packages/
 RUN npm ci --prefix /opt/pi-packages --omit=dev && npm cache clean --force
 RUN chown -R 1000:1000 /opt/cargo
 # renovate: datasource=npm depName=pnpm
-ARG PNPM_VERSION=12.9.1
+ARG PNPM_VERSION=12.16.1
 RUN npm install --global --prefix /opt/agents "pnpm@$PNPM_VERSION" && npm cache clean --force
 # Keep equal to the workstations' Mink: a version mismatch makes Mink regenerate the repos' hook files.
 # renovate: datasource=npm depName=@drewpayment/mink
