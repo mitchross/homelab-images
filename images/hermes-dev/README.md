@@ -19,6 +19,7 @@ flowchart LR
 | Official Hermes Agent base | Gateway, dashboard, s6 supervision, Node 26, Python |
 | Claude Code, Codex | Coding agents that Hermes drives through its `claude-code` and `codex` skills |
 | kubectl, omnictl, talosctl, GitHub CLI, git, tmux, jq, ssh | Cluster and Omni checks, pull requests, interactive agent sessions |
+| Rust (rustup, clippy, rustfmt), Go, build-essential, pkg-config, OpenSSL headers, protoc | Build and test the owner's Rust, Go, Node and Python repos; Node and Python come with the base |
 
 The image supports `linux/amd64`. The container starts as root; s6-overlay drops the gateway and dashboard to user `hermes` (10000:10000).
 Claude auto-updates are disabled. Update the CLIs through a new image build.
@@ -50,10 +51,11 @@ Deployment manifests live in `my-apps/development/hermes` of mitchross/talos-arg
 
 ## Updates and rollback
 
-Renovate opens pull requests for the base image digest and the two npm CLIs. `gh`, `kubectl`, `omnictl` and `talosctl` are pinned by version and SHA-256 in the Dockerfile. Bump them by hand: `omnictl` with the Omni server, `talosctl` and `kubectl` with the cluster.
+Renovate opens pull requests for the base image digest and the two npm CLIs. `gh`, `kubectl`, `omnictl`, `talosctl`, Go, rustup and the Rust toolchain are pinned by version and SHA-256 in the Dockerfile. Bump them by hand: `omnictl` with the Omni server, `talosctl` and `kubectl` with the cluster.
 Every push to `main` publishes `ghcr.io/mitchross/hermes-dev:main` and a `sha-` tag. Pin the deployment by digest. Roll back by pinning the previous digest.
 
 ## Limits
 
-- No Pi, no language toolchains, no browser. Paseo's image covers interactive development; this one covers Hermes-driven automation.
+- No Docker or image builds, no Android SDK, no Xcode. iOS and Expo native builds need the Mac.
+- No Pi, no browser. Paseo's image covers interactive development; this one covers Hermes-driven automation.
 - `kubectl`, `omnictl` and `talosctl` have no credentials in the image. The cluster deployment mounts a read-only kubeconfig and an Omni service-account key.
