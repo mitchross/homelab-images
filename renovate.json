@@ -12,22 +12,19 @@
     "npm",
     "custom.regex"
   ],
+  "timezone": "America/Detroit",
   "packageRules": [
     {
       "matchUpdateTypes": [
-        "major"
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
       ],
-      "automerge": false
-    },
-    {
-      "matchDepNames": [
-        "@anthropic-ai/claude-code",
-        "@openai/codex",
-        "@earendil-works/pi-coding-agent"
-      ],
-      "groupName": "coding agents",
+      "groupName": "weekly routine updates",
       "schedule": [
-        "before 6am on monday"
+        "* 0-5 * * 1"
       ]
     },
     {
@@ -35,22 +32,26 @@
       "matchDepNames": [
         "siderolabs/omni",
         "siderolabs/talos",
-        "kubernetes/kubernetes"
+        "kubernetes/kubernetes",
+        "omnictl",
+        "talosctl",
+        "kubectl"
       ],
       "groupName": "cluster CLIs",
+      "dependencyDashboardApproval": true,
       "automerge": false,
       "prBodyNotes": [
         "Merge only after the Omni server, Talos and Kubernetes in talos-argocd-proxmox run these versions."
       ]
     },
     {
-      "description": "Language toolchains in hermes-dev.",
-      "matchDepNames": [
-        "go",
-        "rust-lang/rust",
-        "rust-lang/rustup"
+      "description": "Review major upgrades separately from routine updates and each other.",
+      "matchUpdateTypes": [
+        "major"
       ],
-      "groupName": "toolchains"
+      "groupName": null,
+      "groupSlug": null,
+      "automerge": false
     }
   ],
   "customManagers": [
