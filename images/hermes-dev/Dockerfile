@@ -10,11 +10,11 @@ ARG CODEX_VERSION=0.165.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
 ARG GH_VERSION=2.103.3
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
-ARG KUBECTL_VERSION=1.37.1
+ARG KUBECTL_VERSION=1.37.2
 # Downloads are checked against each release's published checksums.
 # omnictl must match the Omni server release; talosctl follows the cluster's Talos version.
 # renovate: datasource=github-releases depName=siderolabs/omni extractVersion=^v(?<version>.+)$
-ARG OMNICTL_VERSION=1.12.4
+ARG OMNICTL_VERSION=1.13.0
 # renovate: datasource=github-releases depName=siderolabs/talos extractVersion=^v(?<version>.+)$
 ARG TALOSCTL_VERSION=1.14.5
 # renovate: datasource=golang-version depName=go
