@@ -11,6 +11,11 @@ ARG GH_VERSION=2.102.0
 ARG GH_SHA256=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
 ARG KUBECTL_VERSION=1.37.1
 ARG KUBECTL_SHA256=65691ff77eb6fa44c908b77a1082c9f092c3b9733b5cefabec0d1104890e21a8
+# omnictl must match the Omni server release; talosctl follows the cluster's Talos version.
+ARG OMNICTL_VERSION=1.12.4
+ARG OMNICTL_SHA256=12b7498895ec79ac584e2ffc05f7918b9d5e987a3442be5d49525b431c7f0958
+ARG TALOSCTL_VERSION=1.14.5
+ARG TALOSCTL_SHA256=ff432b68986709e6b69c563a08a2ced4232d5196b0dccd6d2e783e9d714d7d7d
 # /opt/agents/bin goes first so the pinned CLIs win over anything on the data volume.
 ENV PATH=/opt/agents/bin:${PATH} \
     DISABLE_AUTOUPDATER=1
@@ -22,6 +27,12 @@ RUN curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_$
 RUN curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /tmp/kubectl \
     && echo "$KUBECTL_SHA256  /tmp/kubectl" | sha256sum -c - \
     && install -m 0755 /tmp/kubectl /usr/local/bin/kubectl && rm /tmp/kubectl
+RUN curl -fsSL "https://github.com/siderolabs/omni/releases/download/v${OMNICTL_VERSION}/omnictl-linux-amd64" -o /tmp/omnictl \
+    && echo "$OMNICTL_SHA256  /tmp/omnictl" | sha256sum -c - \
+    && install -m 0755 /tmp/omnictl /usr/local/bin/omnictl && rm /tmp/omnictl \
+    && curl -fsSL "https://github.com/siderolabs/talos/releases/download/v${TALOSCTL_VERSION}/talosctl-linux-amd64" -o /tmp/talosctl \
+    && echo "$TALOSCTL_SHA256  /tmp/talosctl" | sha256sum -c - \
+    && install -m 0755 /tmp/talosctl /usr/local/bin/talosctl && rm /tmp/talosctl
 # npm 12 blocks install scripts by default; Claude Code fetches its native binary in postinstall.
 RUN npm install --global --prefix /opt/agents --allow-scripts=@anthropic-ai/claude-code \
       "@anthropic-ai/claude-code@$CLAUDE_VERSION" \
@@ -33,5 +44,5 @@ RUN chmod 0755 /usr/local/bin/hermes-image-smoke \
     && HOME=/tmp/smoke-home setpriv --reuid=10000 --regid=10000 --clear-groups /usr/local/bin/hermes-image-smoke \
     && rm -rf /tmp/smoke-home
 LABEL org.opencontainers.image.source="https://github.com/mitchross/homelab-images" \
-      org.opencontainers.image.description="Hermes Agent with Claude Code, Codex, kubectl, gh and tmux"
+      org.opencontainers.image.description="Hermes Agent with Claude Code, Codex, kubectl, omnictl, talosctl, gh and tmux"
 # Stay root: s6-overlay bootstraps as root and drops the gateway to uid 10000 itself.
