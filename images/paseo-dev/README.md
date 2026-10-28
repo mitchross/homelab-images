@@ -104,8 +104,9 @@ agent updates weekly. The build checks mise and tea against their release
 checksums. Update the 1Password CLI checksum pair and the Antigravity release
 manifest by hand.
 
-GitHub Actions builds and tests each image before it publishes. Weekly builds
-skip the cache to refresh OS packages. Builds on `main` also move the `main` tag.
+Automatic builds are paused while Paseo is unused.
+Run **Build Paseo development image** manually in GitHub Actions to build, test, and publish it.
+Runs on `main` also move the `main` tag.
 Deployments pin a digest. The deploy guides above describe the update and rollback steps.
 
 ## Limits
