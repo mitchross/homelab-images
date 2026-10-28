@@ -1,12 +1,6 @@
 name: Build Paseo development image
 on:
-  pull_request:
-    paths: ['images/paseo-dev/**', 'scripts/**', '.github/workflows/build.yml']
-  push:
-    paths: ['images/paseo-dev/**', 'scripts/**', '.github/workflows/build.yml']
   workflow_dispatch:
-  schedule:
-    - cron: "17 5 * * 1"
 permissions:
   contents: read
 concurrency:
@@ -31,7 +25,6 @@ jobs:
           context: images/paseo-dev
           platforms: linux/amd64
           load: true
-          no-cache: ${{ github.event_name == 'schedule' }}
           tags: ghcr.io/mitchross/paseo-dev:sha-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           cache-from: type=gha,scope=paseo-dev
           cache-to: type=gha,scope=paseo-dev,mode=min
