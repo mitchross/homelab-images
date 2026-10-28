@@ -51,7 +51,8 @@ Deployment manifests live in `my-apps/development/hermes` of mitchross/talos-arg
 
 ## Updates and rollback
 
-Renovate opens pull requests for the base image digest and the two npm CLIs. `gh`, `kubectl`, `omnictl`, `talosctl`, Go, rustup and the Rust toolchain are pinned by version and SHA-256 in the Dockerfile. Bump them by hand: `omnictl` with the Omni server, `talosctl` and `kubectl` with the cluster.
+Renovate opens pull requests for the base image digest, the npm CLIs, `gh`, Go and the Rust toolchain. The build checks every download against the release's published checksums.
+`omnictl`, `talosctl` and `kubectl` arrive as one "cluster CLIs" PR. Merge it only after the Omni server, Talos and Kubernetes run those versions.
 Every push to `main` publishes `ghcr.io/mitchross/hermes-dev:main` and a `sha-` tag. Pin the deployment by digest. Roll back by pinning the previous digest.
 
 ## Limits
