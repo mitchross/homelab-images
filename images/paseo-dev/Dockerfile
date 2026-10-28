@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 FROM ghcr.io/getpaseo/paseo:0.11.1@sha256:664a58a73cac82448b3c72558129534e3be52a18b5f4e801ae446f646bb5d8c1 AS tools
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
