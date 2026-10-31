@@ -4,3 +4,7 @@
 
 __pycache__/
 *.pyc
+
+# Agent-managed worktrees (Claude Code, Hermes)
+.claude/worktrees/
+.worktrees/
