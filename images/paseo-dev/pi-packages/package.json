@@ -5,10 +5,10 @@
   "dependencies": {
     "@dreki-gg/pi-lsp": "0.5.2",
     "@d3ara1n/pi-ask-user": "2.5.2",
-    "pi-web-access": "0.45.0",
+    "pi-web-access": "0.46.0",
     "pi-mcp-adapter": "7.0.0",
     "@narumitw/pi-chrome-devtools": "0.54.0",
-    "@narumitw/pi-subagents": "3.4.0",
+    "@narumitw/pi-subagents": "3.4.1",
     "@narumitw/pi-goal": "0.54.13",
     "@narumitw/pi-statusline": "0.50.2",
     "pi-plan": "0.2.0"
