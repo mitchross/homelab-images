@@ -4,9 +4,9 @@ FROM docker.io/nousresearch/hermes-agent:v0.22.5@sha256:9c5561579f3ffdf333401797
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.312
+ARG CLAUDE_VERSION=2.1.316
 # renovate: datasource=npm depName=@openai/codex
-ARG CODEX_VERSION=0.165.0
+ARG CODEX_VERSION=0.166.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
 ARG GH_VERSION=2.103.3
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$

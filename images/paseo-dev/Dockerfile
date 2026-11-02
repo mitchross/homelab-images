@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
-FROM ghcr.io/getpaseo/paseo:0.13.2@sha256:fde5ff1192933bf4feebaa19ef072ff8b96d9c1078978cc0ee75c5541ff16581 AS tools
+FROM ghcr.io/getpaseo/paseo:0.14.0@sha256:2a370238230689406d7123e44b218ede221fd77dd23200a18672ed03873682b0 AS tools
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
-ARG MISE_VERSION=2026.10.22
+ARG MISE_VERSION=2026.10.25
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.312
+ARG CLAUDE_VERSION=2.1.316
 # renovate: datasource=npm depName=@openai/codex
-ARG CODEX_VERSION=0.165.0
+ARG CODEX_VERSION=0.166.0
 # renovate: datasource=npm depName=@earendil-works/pi-coding-agent
 ARG PI_VERSION=1.4.0
 ENV MISE_DATA_DIR=/opt/mise \
