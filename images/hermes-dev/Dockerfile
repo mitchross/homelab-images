@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 # Official Hermes Agent plus the coding agents and cluster CLIs its skills call.
-FROM docker.io/nousresearch/hermes-agent:v0.22.5@sha256:9c5561579f3ffdf333401797094ac3a743738d6c25d40f4331c7bf77b694238d
+FROM docker.io/nousresearch/hermes-agent:v0.22.6@sha256:d27689bc6e8581ec884a7227c9101fdaebf6c853cff8859020dac14f21452b4d
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.316
+ARG CLAUDE_VERSION=2.1.317
 # renovate: datasource=npm depName=@openai/codex
 ARG CODEX_VERSION=0.166.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
