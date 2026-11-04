@@ -52,6 +52,18 @@
       "groupName": null,
       "groupSlug": null,
       "automerge": false
+    },
+    {
+      "description": "Strata is a fast-moving fork: bump the upstream commit only on approval, never automerge.",
+      "matchDepNames": [
+        "strata-upstream"
+      ],
+      "groupName": "strata upstream",
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "prBodyNotes": [
+        "Also bump images/strata/VERSION in this PR to `<strata version>.<n>-<first 7 of the new commit>-sm86`; the pin check fails until it matches. After the image publishes, Renovate opens the digest bump in talos-argocd-proxmox."
+      ]
     }
   ],
   "customManagers": [
@@ -64,6 +76,20 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( extractVersion=(?<extractVersion>\\S+))?\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track the pinned upstream Strata commit.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^images/strata/SOURCE_REF$/"
+      ],
+      "matchStrings": [
+        "^(?<currentDigest>[0-9a-f]{40})\\s*$"
+      ],
+      "depNameTemplate": "strata-upstream",
+      "packageNameTemplate": "https://github.com/Niko1221/Strata",
+      "datasourceTemplate": "git-refs",
+      "currentValueTemplate": "main"
     }
   ],
   "dependencyDashboard": true
