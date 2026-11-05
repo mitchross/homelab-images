@@ -58,5 +58,5 @@ Every push to `main` publishes `ghcr.io/mitchross/hermes-dev:main` and a `sha-` 
 ## Limits
 
 - No Docker or image builds, no Android SDK, no Xcode. iOS and Expo native builds need the Mac.
-- No Pi, no browser. Paseo's image covers interactive development; this one covers Hermes-driven automation.
+- No Pi, no browser. This image supports Hermes-driven automation.
 - `kubectl`, `omnictl` and `talosctl` have no credentials in the image. The cluster deployment mounts a read-only kubeconfig and an Omni service-account key.

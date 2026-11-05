@@ -23,7 +23,6 @@ This block is the same in every repo. Other rules in this file may add to it, ne
 
 ## Migration phases
 
-1. Build and verify Paseo; prepare its Talos deployment through a separate PR.
-2. Move Frigate go2rtc and ProxCenter ARM64 build sources/publishers here. Verify replacement publishing before removing old workflows.
-3. Preserve archived NInfer build instructions without enabling deployment.
-4. Review the remaining personal image inventory. Application builds move only with an explicit source/context strategy; never import `programming/work`.
+1. Move Frigate go2rtc and ProxCenter ARM64 build sources/publishers here. Verify replacement publishing before removing old workflows.
+2. Preserve archived NInfer build instructions without enabling deployment.
+3. Review the remaining personal image inventory. Application builds move only with an explicit source/context strategy; never import `programming/work`.
