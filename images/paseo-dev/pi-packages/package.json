@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "dependencies": {
     "@dreki-gg/pi-lsp": "0.5.2",
-    "@d3ara1n/pi-ask-user": "2.5.2",
-    "pi-web-access": "0.46.0",
-    "pi-mcp-adapter": "7.0.0",
+    "@d3ara1n/pi-ask-user": "2.6.0",
+    "pi-web-access": "0.47.0",
+    "pi-mcp-adapter": "7.0.1",
     "@narumitw/pi-chrome-devtools": "0.54.0",
-    "@narumitw/pi-subagents": "3.4.1",
-    "@narumitw/pi-goal": "0.54.14",
-    "@narumitw/pi-statusline": "0.50.3",
+    "@narumitw/pi-subagents": "3.4.2",
+    "@narumitw/pi-goal": "0.54.15",
+    "@narumitw/pi-statusline": "0.50.4",
     "pi-plan": "0.2.0"
   }
 }

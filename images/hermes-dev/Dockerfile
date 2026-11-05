@@ -4,7 +4,7 @@ FROM docker.io/nousresearch/hermes-agent:v0.22.7@sha256:e6d81ae52ebf6a43efa52970
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.317
+ARG CLAUDE_VERSION=2.1.318
 # renovate: datasource=npm depName=@openai/codex
 ARG CODEX_VERSION=0.166.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
@@ -20,7 +20,7 @@ ARG TALOSCTL_VERSION=1.14.5
 # renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.3
 # renovate: datasource=github-tags depName=rust-lang/rustup
-ARG RUSTUP_VERSION=1.29.2
+ARG RUSTUP_VERSION=1.29.3
 # renovate: datasource=github-releases depName=rust-lang/rust
 ARG RUST_VERSION=1.99.1
 # /opt/agents/bin goes first so the pinned CLIs win over anything on the data volume.

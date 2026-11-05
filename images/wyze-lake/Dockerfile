@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
-FROM python:3.15.2-slim-bookworm@sha256:4e03260adeeebafccd084f3584e6b84823aba5651cfb53ef8a078ed441ddf9cd AS sdk
+FROM python:3.15.2-slim-bookworm@sha256:96599df822d0e1c6bb700014a05c7f3c8cabc6e0f7ff3c4f9f69cee033b4b5d9 AS sdk
 ARG TARGETARCH
 ARG AGORA_PYTHON_VERSION=2.4.9
 ARG AGORA_PYTHON_URL=https://files.pythonhosted.org/packages/33/4d/715e0c325e42ff20484729c1503ac5d89097d31abd2b9db27f48bcac6eec/agora_python_server_sdk-2.4.9.tar.gz
@@ -28,7 +28,7 @@ RUN curl -fsSL "https://github.com/AlexxIT/go2rtc/releases/download/v${GO2RTC_VE
     && echo "${sha:?no checksum}  /usr/local/bin/go2rtc" | sha256sum -c - \
     && chmod 0755 /usr/local/bin/go2rtc
 
-FROM python:3.15.2-slim-bookworm@sha256:4e03260adeeebafccd084f3584e6b84823aba5651cfb53ef8a078ed441ddf9cd AS runtime
+FROM python:3.15.2-slim-bookworm@sha256:96599df822d0e1c6bb700014a05c7f3c8cabc6e0f7ff3c4f9f69cee033b4b5d9 AS runtime
 ARG FFMPEG_VERSION=7:5.1.9-0+deb12u1
 ARG TINI_VERSION=0.19.0-1+b3
 RUN apt-get update \
