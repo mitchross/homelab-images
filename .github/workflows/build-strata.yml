@@ -29,7 +29,8 @@ jobs:
           set -euo pipefail
           version="$(<"$IMAGE_DIR/VERSION")"
           source_ref="$(<"$IMAGE_DIR/SOURCE_REF")"
-          # <upstream x.y.z.n>[.<image revision>]-<sha7>-sm86: the revision rebuilds the same commit with other options
+          # <upstream version, padded to four numbers>[.<image revision>]-<sha7>-sm86: the revision rebuilds the same
+          # commit with other options. Upstream 0.1.57 is tagged 0.1.57.0, so talos Renovate's four-number regex parses it.
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9a-f]{7}-sm86$ ]]
           [[ "$source_ref" =~ ^[0-9a-f]{40}$ ]]
           [[ "$version" == *"-${source_ref:0:7}-sm86" ]]
@@ -61,7 +62,7 @@ jobs:
           ref: ${{ steps.meta.outputs.source_ref }}
           path: strata-src
           persist-credentials: false
-      - name: Build the engine and image encoder for an AVX2 CPU, not the runner's
+      - name: Check the pin, and that upstream builds for an AVX2 CPU, not the runner's
         if: steps.exists.outputs.exists != 'true'
         env:
           SOURCE_REF: ${{ steps.meta.outputs.source_ref }}
@@ -69,20 +70,18 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$(git -C strata-src rev-parse HEAD)" == "$SOURCE_REF" ]]
-          upstream_version="$(cut -d. -f1-4 <<< "${TAG%%-*}")"
-          grep -q "project(strata VERSION $upstream_version " strata-src/CMakeLists.txt
-          # Upstream's Dockerfile builds ggml-cpu with -march=native for the build host; the GPU node is a
-          # Zen+ Threadripper (AVX2, no AVX-512). STRATA_PORTABLE is upstream's own AVX2 release build.
-          needle='["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF",'
-          [[ "$(grep -cF "$needle" strata-src/Dockerfile)" -eq 1 ]]
-          sed -i 's/\["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF",/["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF", "-DSTRATA_PORTABLE=ON",/' strata-src/Dockerfile
-          grep -qF '"-DSTRATA_PORTABLE=ON"' strata-src/Dockerfile
-          # The image encoder (tools/vision) is built with -DSTRATA_PORTABLE=OFF, which is -march=native there too.
-          vneedle='"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=OFF",'
-          [[ "$(grep -cF "$vneedle" strata-src/Dockerfile)" -eq 1 ]]
-          sed -i 's/"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=OFF",/"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=ON",/' strata-src/Dockerfile
-          grep -qF '"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=ON",' strata-src/Dockerfile
-          git -C strata-src diff --stat
+          # Upstream's CMakeLists.txt version, padded to four numbers, must be the tag's first four numbers.
+          cmake_version="$(sed -n 's/^project(strata VERSION \([0-9.]*\) .*/\1/p' strata-src/CMakeLists.txt)"
+          [[ "$cmake_version" =~ ^[0-9]+(\.[0-9]+){2,3}$ ]]
+          padded="$cmake_version"
+          if [[ "$padded" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then padded="$padded.0"; fi
+          [[ "$(cut -d. -f1-4 <<< "${TAG%%-*}")" == "$padded" ]]
+          # The GPU node is a Zen+ Threadripper (AVX2, no AVX-512). Since 0.2.x upstream's Dockerfile builds the engine and
+          # the image encoder (tools/vision) with STRATA_PORTABLE=ON, its AVX2 release build, so nothing is patched now.
+          # Fail if either goes back to -march=native (PORTABLE=OFF).
+          [[ "$(grep -c -- '-DSTRATA_PORTABLE=ON' strata-src/Dockerfile)" -eq 2 ]]
+          if grep -q -- '-DSTRATA_PORTABLE=OFF' strata-src/Dockerfile; then exit 1; fi
+          grep -q -- '-DSTRATA_VISION_CUDA=ON -DSTRATA_PORTABLE=ON' strata-src/Dockerfile
       - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
         if: steps.meta.outputs.publish == 'true' && steps.exists.outputs.exists != 'true'
         with:
@@ -107,6 +106,8 @@ jobs:
           build-args: |
             CUDA_ARCHITECTURES=86
             BUILD_VISION=1
+            STRATA_COMMIT=${{ steps.meta.outputs.source_ref }}
+            STRATA_VERSION=${{ steps.meta.outputs.tag }}
           cache-from: type=gha,scope=strata
           cache-to: type=gha,scope=strata,mode=max
       - name: Report image digest
