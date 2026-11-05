@@ -2,7 +2,7 @@
 
 `ghcr.io/mitchross/paseo-dev` runs [Paseo](https://github.com/getpaseo/paseo) with coding agents and developer tools.
 
-**Deploy it:** the deployment docs live in [talos-argocd-proxmox](https://github.com/mitchross/talos-argocd-proxmox):
+The deployment docs live in [talos-argocd-proxmox](https://github.com/mitchross/talos-argocd-proxmox):
 
 | Guide | Use it to |
 | --- | --- |
@@ -55,7 +55,7 @@ Keep `MINK_VERSION` equal to the workstations' Mink, or Mink regenerates the rep
 On first start, the entrypoint copies [config/pi-settings.json](config/pi-settings.json) and
 [config/pi-models.json](config/pi-models.json) into `~/.pi/agent/`. Later starts keep the user's copies.
 The seeded providers point at the author's in-cluster LiteLLM. Write their `apiKey` values as
-`"$NAME"`: Pi sends a bare name as the literal key.
+`"$NAME"`, because Pi sends a bare name as the literal key.
 
 Interactive bash loads [config/pi-aliases.sh](config/pi-aliases.sh) from `/etc/bash.bashrc`:
 `pi-qwen-only`, `pi-withflash`, and `pi-flash`. They use the seeded provider names.

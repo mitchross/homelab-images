@@ -15,7 +15,7 @@ Find deployment manifests in [talos-argocd-proxmox](https://github.com/mitchross
 ## What differs from upstream
 
 - `CUDA_ARCHITECTURES=86`: Ampere only.
-- `BUILD_VISION=1` (upstream's default): the image includes the CUDA image encoder `engine/strata-vision`, so the deployment can run with `VISION=yes` and the model can read images.
+- `BUILD_VISION=1` (upstream's default). The image includes the CUDA image encoder `engine/strata-vision`, so the deployment can run with `VISION=yes` and the model can read images.
 - `-DSTRATA_PORTABLE=ON` for both the engine and the image encoder, patched into upstream's Dockerfile at build time. Upstream builds both with `-march=native`, which would bake the CI runner's CPU into the binaries. The GPU node is a Zen+ Threadripper (AVX2, no AVX-512).
 
 ## Version pins
