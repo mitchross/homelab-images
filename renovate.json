@@ -62,7 +62,7 @@
       "dependencyDashboardApproval": true,
       "automerge": false,
       "prBodyNotes": [
-        "Also bump images/strata/VERSION in this PR to `<upstream x.y.z.n>-<first 7 of the new commit>-sm86` (drop any fifth image-revision number); the pin check fails until it matches. After the image publishes, Renovate opens the digest bump in talos-argocd-proxmox."
+        "Also bump images/strata/VERSION in this PR to `<upstream CMakeLists version, padded to four numbers (0.1.57 -> 0.1.57.0)>-<first 7 of the new commit>-sm86` (drop any fifth image-revision number); the pin check fails until it matches. After the image publishes, Renovate opens the digest bump in talos-argocd-proxmox."
       ]
     }
   ],
