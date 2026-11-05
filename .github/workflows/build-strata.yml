@@ -29,7 +29,8 @@ jobs:
           set -euo pipefail
           version="$(<"$IMAGE_DIR/VERSION")"
           source_ref="$(<"$IMAGE_DIR/SOURCE_REF")"
-          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+-[0-9a-f]{7}-sm86$ ]]
+          # <upstream x.y.z.n>[.<image revision>]-<sha7>-sm86: the revision rebuilds the same commit with other options
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9a-f]{7}-sm86$ ]]
           [[ "$source_ref" =~ ^[0-9a-f]{40}$ ]]
           [[ "$version" == *"-${source_ref:0:7}-sm86" ]]
           publish=false
@@ -60,7 +61,7 @@ jobs:
           ref: ${{ steps.meta.outputs.source_ref }}
           path: strata-src
           persist-credentials: false
-      - name: Build for an AVX2 CPU, not the runner's
+      - name: Build the engine and image encoder for an AVX2 CPU, not the runner's
         if: steps.exists.outputs.exists != 'true'
         env:
           SOURCE_REF: ${{ steps.meta.outputs.source_ref }}
@@ -68,13 +69,19 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$(git -C strata-src rev-parse HEAD)" == "$SOURCE_REF" ]]
-          grep -q "project(strata VERSION ${TAG%%-*} " strata-src/CMakeLists.txt
+          upstream_version="$(cut -d. -f1-4 <<< "${TAG%%-*}")"
+          grep -q "project(strata VERSION $upstream_version " strata-src/CMakeLists.txt
           # Upstream's Dockerfile builds ggml-cpu with -march=native for the build host; the GPU node is a
           # Zen+ Threadripper (AVX2, no AVX-512). STRATA_PORTABLE is upstream's own AVX2 release build.
           needle='["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF",'
           [[ "$(grep -cF "$needle" strata-src/Dockerfile)" -eq 1 ]]
           sed -i 's/\["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF",/["-DSTRATA_ENABLE_CUDA=ON", "-DSTRATA_BUILD_TESTS=OFF", "-DSTRATA_PORTABLE=ON",/' strata-src/Dockerfile
           grep -qF '"-DSTRATA_PORTABLE=ON"' strata-src/Dockerfile
+          # The image encoder (tools/vision) is built with -DSTRATA_PORTABLE=OFF, which is -march=native there too.
+          vneedle='"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=OFF",'
+          [[ "$(grep -cF "$vneedle" strata-src/Dockerfile)" -eq 1 ]]
+          sed -i 's/"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=OFF",/"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=ON",/' strata-src/Dockerfile
+          grep -qF '"-DSTRATA_VISION_CUDA=ON", "-DSTRATA_PORTABLE=ON",' strata-src/Dockerfile
           git -C strata-src diff --stat
       - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
         if: steps.meta.outputs.publish == 'true' && steps.exists.outputs.exists != 'true'
@@ -99,7 +106,7 @@ jobs:
             org.opencontainers.image.revision=${{ steps.meta.outputs.source_ref }}
           build-args: |
             CUDA_ARCHITECTURES=86
-            BUILD_VISION=0
+            BUILD_VISION=1
           cache-from: type=gha,scope=strata
           cache-to: type=gha,scope=strata,mode=max
       - name: Report image digest
