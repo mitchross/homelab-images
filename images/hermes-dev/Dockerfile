@@ -17,6 +17,9 @@ ARG KUBECTL_VERSION=1.37.2
 ARG OMNICTL_VERSION=1.13.2
 # renovate: datasource=github-releases depName=siderolabs/talos extractVersion=^v(?<version>.+)$
 ARG TALOSCTL_VERSION=1.14.5
+# hubble reads flows from the cluster's hubble-relay; keep it near the Cilium release.
+# renovate: datasource=github-releases depName=cilium/hubble extractVersion=^v(?<version>.+)$
+ARG HUBBLE_VERSION=1.20.2
 # renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.3
 # renovate: datasource=github-tags depName=rust-lang/rustup
@@ -46,7 +49,11 @@ RUN curl -fsSL "https://github.com/siderolabs/omni/releases/download/v${OMNICTL_
     && curl -fsSL "https://github.com/siderolabs/talos/releases/download/v${TALOSCTL_VERSION}/talosctl-linux-amd64" -o /tmp/talosctl \
     && sha=$(curl -fsSL "https://github.com/siderolabs/talos/releases/download/v${TALOSCTL_VERSION}/sha256sum.txt" | grep " talosctl-linux-amd64$" | cut -d' ' -f1) \
     && echo "${sha:?no checksum}  /tmp/talosctl" | sha256sum -c - \
-    && install -m 0755 /tmp/talosctl /usr/local/bin/talosctl && rm /tmp/talosctl
+    && install -m 0755 /tmp/talosctl /usr/local/bin/talosctl && rm /tmp/talosctl \
+    && curl -fsSL "https://github.com/cilium/hubble/releases/download/v${HUBBLE_VERSION}/hubble-linux-amd64.tar.gz" -o /tmp/hubble.tgz \
+    && sha=$(curl -fsSL "https://github.com/cilium/hubble/releases/download/v${HUBBLE_VERSION}/hubble-linux-amd64.tar.gz.sha256sum" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/hubble.tgz" | sha256sum -c - \
+    && tar -C /usr/local/bin -xzf /tmp/hubble.tgz hubble && rm /tmp/hubble.tgz
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz \
     && sha=$(curl -fsSL "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz.sha256") \
     && echo "${sha:?no checksum}  /tmp/go.tgz" | sha256sum -c - \
@@ -69,5 +76,5 @@ RUN chmod 0755 /usr/local/bin/hermes-image-smoke \
     && HOME=/tmp/smoke-home setpriv --reuid=10000 --regid=10000 --clear-groups /usr/local/bin/hermes-image-smoke \
     && rm -rf /tmp/smoke-home
 LABEL org.opencontainers.image.source="https://github.com/mitchross/homelab-images" \
-      org.opencontainers.image.description="Hermes Agent with Claude Code, Codex, Rust, Go, kubectl, omnictl, talosctl, gh and tmux"
+      org.opencontainers.image.description="Hermes Agent with Claude Code, Codex, Rust, Go, kubectl, omnictl, talosctl, hubble, gh and tmux"
 # Stay root: s6-overlay bootstraps as root and drops the gateway to uid 10000 itself.
