@@ -2,7 +2,11 @@ FROM vllm/vllm-openai:v0.32.0@sha256:befccf0e7e4089aa23926bb6f887a85c0d46c2a99e6
 COPY patches/ /etc/club3090/
 COPY SOURCE_REF /etc/club3090/SOURCE_REF
 COPY smoke.py /opt/dualfast/smoke.py
-RUN VLLM_MARLIN_INPUT_DTYPE=int8 bash /etc/club3090/w4a8/install.sh \
+RUN _eb="$(python3 /etc/club3090/effort_budget.py shell-env --engine vllm --default-effort medium --low 4096 --medium 16384 --xhigh 32768)" \
+    && eval "$_eb" \
+    && bash /etc/club3090/effort-budget/install.sh \
+    && bash /etc/club3090/default-thinking-budget/install.sh \
+    && VLLM_MARLIN_INPUT_DTYPE=int8 bash /etc/club3090/w4a8/install.sh \
     && bash /etc/club3090/pr48375/install.sh \
     && FI_PINQ_LIB_ALL=0 FI_PINQ_LIB_ROOT="$(python3 -c 'import importlib.util,pathlib; print(pathlib.Path(importlib.util.find_spec("flashinfer").origin).parent)')" \
        bash /etc/club3090/flashinfer-decode-pin/install.sh \
