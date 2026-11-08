@@ -64,6 +64,30 @@
       "prBodyNotes": [
         "Also bump images/strata/VERSION in this PR to `<upstream CMakeLists version, padded to four numbers (0.1.57 -> 0.1.57.0)>-<first 7 of the new commit>-sm86` (drop any fifth image-revision number); the pin check fails until it matches. After the image publishes, Renovate opens the digest bump in talos-argocd-proxmox."
       ]
+    },
+    {
+      "description": "vLLM patches must re-apply and pass smoke before any base bump.",
+      "matchPackageNames": [
+        "vllm/vllm-openai"
+      ],
+      "groupName": "vllm patched base",
+      "labels": [
+        "dependencies"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "prBodyNotes": [
+        "Bump images/vllm-qwen38-dualfast/VERSION and re-check all vendored patch anchors before merging."
+      ]
+    },
+    {
+      "matchPackageNames": ["club-3090-patches"],
+      "groupName": "vllm club-3090 patches",
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "prBodyNotes": [
+        "Re-vendor the three patch directories, update the Dockerfile revision label and bump VERSION; changing SOURCE_REF alone does not update patch code."
+      ]
     }
   ],
   "customManagers": [
@@ -88,6 +112,16 @@
       ],
       "depNameTemplate": "strata-upstream",
       "packageNameTemplate": "https://github.com/Niko1221/Strata",
+      "datasourceTemplate": "git-refs",
+      "currentValueTemplate": "main"
+    },
+    {
+      "description": "Track the vendored club-3090 patch source for manual review.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/vllm-qwen38-dualfast/SOURCE_REF$/"],
+      "matchStrings": ["^(?<currentDigest>[0-9a-f]{40})\\s*$"],
+      "depNameTemplate": "club-3090-patches",
+      "packageNameTemplate": "https://github.com/noonghunna/club-3090",
       "datasourceTemplate": "git-refs",
       "currentValueTemplate": "main"
     }
