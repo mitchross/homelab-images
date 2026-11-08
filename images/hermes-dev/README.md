@@ -18,7 +18,7 @@ flowchart LR
 | --- | --- |
 | Official Hermes Agent base | Gateway, dashboard, s6 supervision, Node 26, Python |
 | Claude Code, Codex | Coding agents that Hermes drives through its `claude-code` and `codex` skills |
-| kubectl, omnictl, talosctl, GitHub CLI, git, tmux, jq, ssh | Cluster and Omni checks, pull requests, interactive agent sessions |
+| kubectl, omnictl, talosctl, hubble, GitHub CLI, git, tmux, jq, ssh | Cluster and Omni checks, network flows (`hubble observe --server hubble-relay.kube-system.svc:80`), pull requests, interactive agent sessions |
 | Rust (rustup, clippy, rustfmt), Go, build-essential, pkg-config, OpenSSL headers, protoc with the protobuf well-known types | Build and test the owner's Rust, Go, Node and Python repos; Node and Python come with the base |
 
 The image supports `linux/amd64`. The container starts as root; s6-overlay drops the gateway and dashboard to user `hermes` (10000:10000).
