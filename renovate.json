@@ -64,6 +64,21 @@
       "prBodyNotes": [
         "Also bump images/strata/VERSION in this PR to `<upstream CMakeLists version, padded to four numbers (0.1.57 -> 0.1.57.0)>-<first 7 of the new commit>-sm86` (drop any fifth image-revision number); the pin check fails until it matches. After the image publishes, Renovate opens the digest bump in talos-argocd-proxmox."
       ]
+    },
+    {
+      "description": "vLLM patches must re-apply and pass smoke before any base bump.",
+      "matchPackageNames": [
+        "vllm/vllm-openai"
+      ],
+      "groupName": "vllm patched base",
+      "labels": [
+        "dependencies"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "prBodyNotes": [
+        "Bump images/vllm-qwen38-dualfast/VERSION and re-check all vendored patch anchors before merging."
+      ]
     }
   ],
   "customManagers": [

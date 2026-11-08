@@ -1,0 +1,54 @@
+name: Build vLLM Qwen3.8 dual-fast image
+on:
+  pull_request:
+    paths: ['images/vllm-qwen38-dualfast/**', '.github/workflows/build-vllm-qwen38-dualfast.yml']
+  push:
+    branches: [main]
+    paths: ['images/vllm-qwen38-dualfast/**', '.github/workflows/build-vllm-qwen38-dualfast.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: vllm-qwen38-dualfast-image-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Make room for the vLLM CUDA image
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
+      - name: Read version
+        run: printf 'VERSION=%s\n' "$(<images/vllm-qwen38-dualfast/VERSION)" >> "$GITHUB_ENV"
+      - name: Build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: images/vllm-qwen38-dualfast
+          platforms: linux/amd64
+          load: true
+          tags: ghcr.io/mitchross/vllm-qwen38-dualfast:${{ env.VERSION }}
+          cache-from: type=gha,scope=vllm-qwen38-dualfast
+          cache-to: type=gha,scope=vllm-qwen38-dualfast,mode=min
+      - name: Test as runtime user with fresh storage
+        env:
+          IMAGE: ghcr.io/mitchross/vllm-qwen38-dualfast:${{ env.VERSION }}
+        run: docker run --rm --entrypoint python3 -v dualfast-smoke-home:/root "$IMAGE" /opt/dualfast/smoke.py
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish tested revision
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE: ghcr.io/mitchross/vllm-qwen38-dualfast:${{ env.VERSION }}
+        run: |
+          docker push "$IMAGE"
+          digest=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE")
+          echo "Published: \`$digest\`" >> "$GITHUB_STEP_SUMMARY"
