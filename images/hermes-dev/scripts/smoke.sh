@@ -21,3 +21,4 @@ cargo clippy --version
 go version
 test -f /usr/include/google/protobuf/timestamp.proto
 tmux -V
+python3 -m pytest --version
