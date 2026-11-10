@@ -20,6 +20,13 @@ ARG TALOSCTL_VERSION=1.14.5
 # hubble reads flows from the cluster's hubble-relay; keep it near the Cilium release.
 # renovate: datasource=github-releases depName=cilium/hubble extractVersion=^v(?<version>.+)$
 ARG HUBBLE_VERSION=1.20.4
+# helm and kustomize render charts and overlays for GitOps PRs; bun runs the JS repos' installs and tests.
+# renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
+ARG HELM_VERSION=4.3.1
+# renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/v(?<version>.+)$
+ARG KUSTOMIZE_VERSION=5.8.3
+# renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.+)$
+ARG BUN_VERSION=1.4.4
 # renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.3
 # renovate: datasource=github-tags depName=rust-lang/rustup
@@ -54,6 +61,19 @@ RUN curl -fsSL "https://github.com/siderolabs/omni/releases/download/v${OMNICTL_
     && sha=$(curl -fsSL "https://github.com/cilium/hubble/releases/download/v${HUBBLE_VERSION}/hubble-linux-amd64.tar.gz.sha256sum" | cut -d' ' -f1) \
     && echo "${sha:?no checksum}  /tmp/hubble.tgz" | sha256sum -c - \
     && tar -C /usr/local/bin -xzf /tmp/hubble.tgz hubble && rm /tmp/hubble.tgz
+RUN curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz" -o /tmp/helm.tgz \
+    && sha=$(curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz.sha256sum" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/helm.tgz" | sha256sum -c - \
+    && tar -C /usr/local/bin -xzf /tmp/helm.tgz --strip-components=1 linux-amd64/helm && rm /tmp/helm.tgz \
+    && curl -fsSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" -o /tmp/kustomize.tgz \
+    && sha=$(curl -fsSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/checksums.txt" | grep " kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz$" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/kustomize.tgz" | sha256sum -c - \
+    && tar -C /usr/local/bin -xzf /tmp/kustomize.tgz kustomize && rm /tmp/kustomize.tgz \
+    && curl -fsSL "https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/bun-linux-x64.zip" -o /tmp/bun.zip \
+    && sha=$(curl -fsSL "https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/SHASUMS256.txt" | grep " bun-linux-x64.zip$" | cut -d' ' -f1) \
+    && echo "${sha:?no checksum}  /tmp/bun.zip" | sha256sum -c - \
+    && python3 -m zipfile -e /tmp/bun.zip /tmp && install -m 0755 /tmp/bun-linux-x64/bun /usr/local/bin/bun \
+    && ln -s bun /usr/local/bin/bunx && rm -rf /tmp/bun.zip /tmp/bun-linux-x64
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz \
     && sha=$(curl -fsSL "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz.sha256") \
     && echo "${sha:?no checksum}  /tmp/go.tgz" | sha256sum -c - \
@@ -76,5 +96,5 @@ RUN chmod 0755 /usr/local/bin/hermes-image-smoke \
     && HOME=/tmp/smoke-home setpriv --reuid=10000 --regid=10000 --clear-groups /usr/local/bin/hermes-image-smoke \
     && rm -rf /tmp/smoke-home
 LABEL org.opencontainers.image.source="https://github.com/mitchross/homelab-images" \
-      org.opencontainers.image.description="Hermes Agent with Claude Code, Codex, Rust, Go, kubectl, omnictl, talosctl, hubble, gh and tmux"
+      org.opencontainers.image.description="Hermes Agent with Claude Code, Codex, Rust, Go, bun, kubectl, helm, kustomize, omnictl, talosctl, hubble, gh and tmux"
 # Stay root: s6-overlay bootstraps as root and drops the gateway to uid 10000 itself.
