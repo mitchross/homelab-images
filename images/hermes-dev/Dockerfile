@@ -4,9 +4,9 @@ FROM docker.io/nousresearch/hermes-agent:v0.23.0@sha256:adb7890916de63245523492b
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.318
+ARG CLAUDE_VERSION=2.1.321
 # renovate: datasource=npm depName=@openai/codex
-ARG CODEX_VERSION=0.166.0
+ARG CODEX_VERSION=0.167.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
 ARG GH_VERSION=2.103.3
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
@@ -19,7 +19,7 @@ ARG OMNICTL_VERSION=1.13.2
 ARG TALOSCTL_VERSION=1.14.5
 # hubble reads flows from the cluster's hubble-relay; keep it near the Cilium release.
 # renovate: datasource=github-releases depName=cilium/hubble extractVersion=^v(?<version>.+)$
-ARG HUBBLE_VERSION=1.20.2
+ARG HUBBLE_VERSION=1.20.4
 # renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.3
 # renovate: datasource=github-tags depName=rust-lang/rustup
