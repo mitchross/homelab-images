@@ -29,6 +29,8 @@ ARG KUSTOMIZE_VERSION=5.8.3
 ARG BUN_VERSION=1.4.4
 # renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.3
+# renovate: datasource=pypi depName=pytest
+ARG PYTEST_VERSION=9.2.0
 # renovate: datasource=github-tags depName=rust-lang/rustup
 ARG RUSTUP_VERSION=1.29.3
 # renovate: datasource=github-releases depName=rust-lang/rust
@@ -91,6 +93,8 @@ RUN npm install --global --prefix /opt/agents --allow-scripts=@anthropic-ai/clau
       "@openai/codex@$CODEX_VERSION" \
     && npm cache clean --force \
     && chmod -R a+rX /opt/agents
+# python3 on PATH is the Hermes venv (no pip); pytest adds only iniconfig and pluggy to it.
+RUN /usr/local/bin/python3 -m pip --python /opt/hermes/.venv/bin/python install --no-cache-dir "pytest==${PYTEST_VERSION}"
 COPY scripts/smoke.sh /usr/local/bin/hermes-image-smoke
 RUN chmod 0755 /usr/local/bin/hermes-image-smoke \
     && HOME=/tmp/smoke-home setpriv --reuid=10000 --regid=10000 --clear-groups /usr/local/bin/hermes-image-smoke \
