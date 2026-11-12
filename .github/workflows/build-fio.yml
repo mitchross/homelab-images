@@ -1,0 +1,50 @@
+name: Build fio image
+on:
+  pull_request:
+    paths: ['images/fio/**', 'scripts/test-fio.sh', '.github/workflows/build-fio.yml']
+  push:
+    paths: ['images/fio/**', 'scripts/test-fio.sh', '.github/workflows/build-fio.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fio-image-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  IMAGE: ghcr.io/mitchross/fio:sha-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+jobs:
+  build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+            # The sha tag goes straight to the registry; `main` moves only after the test passes.
+      - name: Build
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: images/fio
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: ${{ env.IMAGE }}
+      - name: Test as runtime user with fresh storage
+        run: bash scripts/test-fio.sh "$IMAGE"
+      - name: Publish tested revision
+        if: github.event_name != 'pull_request'
+        run: |
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            docker buildx imagetools create -t ghcr.io/mitchross/fio:main "$IMAGE"
+          fi
+          echo "Published: \`${IMAGE%%:*}@${{ steps.build.outputs.digest }}\`" >> "$GITHUB_STEP_SUMMARY"
