@@ -95,6 +95,12 @@ RUN npm install --global --prefix /opt/agents --allow-scripts=@anthropic-ai/clau
     && chmod -R a+rX /opt/agents
 # python3 on PATH is the Hermes venv (no pip); pytest adds only iniconfig and pluggy to it.
 RUN /usr/local/bin/python3 -m pip --python /opt/hermes/.venv/bin/python install --no-cache-dir "pytest==${PYTEST_VERSION}"
+# Conduit plugin's Watch live voice runs from this venv (CONDUIT_WATCH_AUDIO_ENV); no Renovate, the pin must equal the plugin's WATCH_AUDIO_AIORTC.
+ARG AIORTC_VERSION=1.15.0
+RUN /usr/local/bin/python3 -m venv /opt/conduit-watch-audio \
+    && /opt/conduit-watch-audio/bin/pip install --no-cache-dir --disable-pip-version-check "aiortc==${AIORTC_VERSION}" \
+    && /opt/conduit-watch-audio/bin/python -I -c "import aiortc, av, json; json.dump({'aiortc': aiortc.__version__, 'requirement': 'aiortc==${AIORTC_VERSION}'}, open('/opt/conduit-watch-audio/conduit-watch-audio.json', 'w'))" \
+    && chmod -R a+rX /opt/conduit-watch-audio
 COPY scripts/smoke.sh /usr/local/bin/hermes-image-smoke
 RUN chmod 0755 /usr/local/bin/hermes-image-smoke \
     && HOME=/tmp/smoke-home setpriv --reuid=10000 --regid=10000 --clear-groups /usr/local/bin/hermes-image-smoke \
