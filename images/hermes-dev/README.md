@@ -20,6 +20,7 @@ flowchart LR
 | Official Hermes Agent base | Gateway, dashboard, s6 supervision, Node 26, Python |
 | Claude Code, Codex | Coding agents that Hermes drives through its `claude-code` and `codex` skills |
 | kubectl, helm, kustomize, omnictl, talosctl, hubble, GitHub CLI, git, tmux, jq, ssh | Cluster and Omni checks, chart and overlay rendering for GitOps pull requests, network flows (`hubble observe --server hubble-relay.kube-system.svc:80`), pull requests, interactive agent sessions |
+| aiortc venv at `/opt/conduit-watch-audio` | Apple Watch live voice for the Conduit plugin. Point `CONDUIT_WATCH_AUDIO_ENV` at it. Keep `AIORTC_VERSION` equal to the plugin's pin, or the plugin treats the venv as stale |
 | Rust (rustup, clippy, rustfmt), Go, bun, build-essential, pkg-config, OpenSSL headers, protoc with the protobuf well-known types, pytest | Build and test the owner's Rust, Go, Node and Python repos; Node and Python come with the base |
 
 The image supports `linux/amd64`. The container starts as root; s6-overlay drops the gateway and dashboard to user `hermes` (10000:10000).

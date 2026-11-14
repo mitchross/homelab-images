@@ -22,3 +22,4 @@ go version
 test -f /usr/include/google/protobuf/timestamp.proto
 tmux -V
 python3 -m pytest --version
+/opt/conduit-watch-audio/bin/python -I -c "import aiortc, av; print('aiortc', aiortc.__version__)"
