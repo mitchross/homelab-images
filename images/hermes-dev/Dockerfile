@@ -14,9 +14,9 @@ ARG KUBECTL_VERSION=1.37.2
 # Downloads are checked against each release's published checksums.
 # omnictl must match the Omni server release; talosctl follows the cluster's Talos version.
 # renovate: datasource=github-releases depName=siderolabs/omni extractVersion=^v(?<version>.+)$
-ARG OMNICTL_VERSION=1.13.2
+ARG OMNICTL_VERSION=1.13.3
 # renovate: datasource=github-releases depName=siderolabs/talos extractVersion=^v(?<version>.+)$
-ARG TALOSCTL_VERSION=1.14.5
+ARG TALOSCTL_VERSION=1.14.6
 # hubble reads flows from the cluster's hubble-relay; keep it near the Cilium release.
 # renovate: datasource=github-releases depName=cilium/hubble extractVersion=^v(?<version>.+)$
 ARG HUBBLE_VERSION=1.20.4
