@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 # Official Hermes Agent plus the coding agents and cluster CLIs its skills call.
-FROM docker.io/nousresearch/hermes-agent:v0.23.0@sha256:adb7890916de63245523492be8f68f9d2095fecbec4e2a6dab7960381f0fc002
+FROM docker.io/nousresearch/hermes-agent:v0.23.1@sha256:276d44685c65c0cb2a25f190b63c65c8906f9dc76486fb1c05ae71b5826bda08
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.321
+ARG CLAUDE_VERSION=2.1.325
 # renovate: datasource=npm depName=@openai/codex
-ARG CODEX_VERSION=0.167.0
+ARG CODEX_VERSION=0.169.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
-ARG GH_VERSION=2.103.3
+ARG GH_VERSION=2.104.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
 ARG KUBECTL_VERSION=1.37.2
 # Downloads are checked against each release's published checksums.
@@ -22,19 +22,19 @@ ARG TALOSCTL_VERSION=1.14.5
 ARG HUBBLE_VERSION=1.20.4
 # helm and kustomize render charts and overlays for GitOps PRs; bun runs the JS repos' installs and tests.
 # renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
-ARG HELM_VERSION=4.3.1
+ARG HELM_VERSION=4.3.2
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/v(?<version>.+)$
 ARG KUSTOMIZE_VERSION=5.8.3
 # renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.+)$
 ARG BUN_VERSION=1.4.4
 # renovate: datasource=golang-version depName=go
-ARG GO_VERSION=1.27.3
+ARG GO_VERSION=1.27.4
 # renovate: datasource=pypi depName=pytest
 ARG PYTEST_VERSION=9.2.0
 # renovate: datasource=github-tags depName=rust-lang/rustup
 ARG RUSTUP_VERSION=1.29.3
 # renovate: datasource=github-releases depName=rust-lang/rust
-ARG RUST_VERSION=1.99.1
+ARG RUST_VERSION=1.100.0
 # /opt/agents/bin goes first so the pinned CLIs win over anything on the data volume.
 # Rust toolchains are read-only in the image; cargo's registry cache lives on the volume.
 ENV PATH=/opt/agents/bin:/opt/rust/cargo/bin:/usr/local/go/bin:${PATH} \
