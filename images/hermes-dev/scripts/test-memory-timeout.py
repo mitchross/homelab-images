@@ -59,7 +59,7 @@ class MemoryTimeoutTests(unittest.TestCase):
             agent = SimpleNamespace(_memory_manager=manager, session_id="fresh", _user_turn_count=1,
                                     _emit_status=lambda _: None)
             query = "What is unfinished in Radar NG?"
-            block = _memory_turn_start_and_prefetch(agent, query)
+            block = _memory_turn_start_and_prefetch(agent, query, None, "")
         wire = compose_user_api_content(query, block, "")
         self.assertIn("Radar NG: verify replay PR", wire)
         self.assertTrue(wire.startswith(query))
