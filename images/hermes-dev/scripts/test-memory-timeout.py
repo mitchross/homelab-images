@@ -1,7 +1,6 @@
 """Exercise the installed Hermes init and manager, without a model or memory server."""
 
 import logging
-from pathlib import Path
 import sys
 import tempfile
 import threading
@@ -13,6 +12,7 @@ sys.path.insert(0, "/opt/hermes")
 from agent import agent_init
 from agent.memory_manager import MemoryManager
 from agent.memory_provider import MemoryProvider
+from agent.turn_context import _memory_turn_start_and_prefetch, compose_user_api_content
 
 
 class RecallProvider(MemoryProvider):
@@ -56,8 +56,13 @@ class MemoryTimeoutTests(unittest.TestCase):
     def test_slow_current_turn_recall_survives_the_configured_bound(self):
         with patch("agent.memory_manager._EXTERNAL_PREFETCH_TIMEOUT_S", 0.01):
             manager = self.initialize(0.2)
-            block = manager.prefetch_all("What is unfinished in Radar NG?", session_id="fresh")
-        self.assertIn("Radar NG", block)
+            agent = SimpleNamespace(_memory_manager=manager, session_id="fresh", _user_turn_count=1,
+                                    _emit_status=lambda _: None)
+            query = "What is unfinished in Radar NG?"
+            block = _memory_turn_start_and_prefetch(agent, query)
+        wire = compose_user_api_content(query, block, "")
+        self.assertIn("Radar NG: verify replay PR", wire)
+        self.assertTrue(wire.startswith(query))
 
     def test_unconfigured_bound_still_times_out(self):
         with patch("agent.memory_manager._EXTERNAL_PREFETCH_TIMEOUT_S", 0.01):
