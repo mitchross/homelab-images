@@ -22,4 +22,5 @@ go version
 test -f /usr/include/google/protobuf/timestamp.proto
 tmux -V
 python3 -m pytest --version
+python3 /usr/local/lib/hermes-dev/test-memory-timeout.py -v
 /opt/conduit-watch-audio/bin/python -I -c "import aiortc, av; print('aiortc', aiortc.__version__)"
