@@ -39,6 +39,22 @@ bash scripts/test-hermes.sh hermes-dev:local
 The test runs the smoke script as the `hermes` user with an empty data volume, then boots the container once and checks the Hermes version.
 It does not test provider logins or cluster permissions.
 
+The recall regression uses the installed Hermes initialization and memory manager with a delayed fake provider.
+It checks that current-turn recall survives the configured bound, while the default still limits waiting.
+
+## Automatic recall timeout bridge
+
+Upstream initializes `MemoryManager` without its existing timeout argument ([#104405](https://github.com/NousResearch/hermes-agent/issues/104405)).
+The build applies one guarded constructor change, exposing `memory.external_prefetch_timeout` in seconds.
+Unset or invalid values keep the upstream eight-second default.
+The Hindsight plugin still needs `recall_sync: true` for first-turn recall.
+The deployment owns both settings.
+
+The patch adds a comment to `uv.lock` to invalidate PM's cached source snapshot on existing volumes.
+Dependency versions and memory data stay intact.
+A changed upstream initialization stops the image build for review.
+Remove this bridge and its lock marker when upstream ships equivalent configuration.
+
 ## Storage and secrets
 
 | Need | Where |

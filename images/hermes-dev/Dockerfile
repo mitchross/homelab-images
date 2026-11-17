@@ -40,6 +40,8 @@ ARG RUST_VERSION=1.100.0
 ENV PATH=/opt/agents/bin:/opt/rust/cargo/bin:/usr/local/go/bin:${PATH} \
     RUSTUP_HOME=/opt/rust/rustup \
     DISABLE_AUTOUPDATER=1
+COPY scripts/patch-memory-timeout.py scripts/test-memory-timeout.py /usr/local/lib/hermes-dev/
+RUN /usr/local/bin/python3 /usr/local/lib/hermes-dev/patch-memory-timeout.py /opt/hermes
 RUN apt-get update && apt-get install -y --no-install-recommends tmux jq less openssh-client \
       build-essential pkg-config libssl-dev protobuf-compiler libprotobuf-dev \
     && rm -rf /var/lib/apt/lists/*
