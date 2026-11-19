@@ -7,8 +7,7 @@ import vllm
 
 root = Path(vllm.__file__).parent
 checks = {
-    root / "model_executor/layers/quantization/inc/schemes/inc_wna16_linear.py": "method.input_dtype = get_marlin_input_dtype()",
-    root / "model_executor/kernels/linear/mixed_precision/marlin.py": "club-3090 W4A8 guards",
+    root / "model_executor/layers/quantization/humming.py": "# club3090 humming-w4a8",
     root / "v1/core/single_type_kv_cache_manager.py": "drop_eagle_block and max_num_blocks > 0",
     Path(importlib.util.find_spec("flashinfer").origin).parent / "decode.py": "# [club3090] pin_memory False",
 }

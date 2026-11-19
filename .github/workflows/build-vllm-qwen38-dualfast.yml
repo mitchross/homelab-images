@@ -24,7 +24,12 @@ jobs:
       - name: Make room for the vLLM CUDA image
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
       - name: Read version
-        run: printf 'VERSION=%s\n' "$(<images/vllm-qwen38-dualfast/VERSION)" >> "$GITHUB_ENV"
+        run: |
+          v="$(<images/vllm-qwen38-dualfast/VERSION)"
+          base="$(sed -n 's/^FROM vllm\/vllm-openai:v\([^@]*\)@.*/\1/p' images/vllm-qwen38-dualfast/Dockerfile)"
+          # A base bump without a VERSION bump would overwrite the old tag.
+          [[ "$v" == "$base-dualfast."* ]] || { echo "::error::VERSION $v must start with $base-dualfast."; exit 1; }
+          printf 'VERSION=%s\n' "$v" >> "$GITHUB_ENV"
       - name: Build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
