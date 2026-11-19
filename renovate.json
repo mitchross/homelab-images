@@ -126,5 +126,7 @@
       "currentValueTemplate": "main"
     }
   ],
-  "dependencyDashboard": true
+  "dependencyDashboard": {
+    "enabled": true
+  }
 }
