@@ -1,5 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  },
+  "osvVulnerabilityAlerts": true,
   "extends": [
     "config:recommended",
     "docker:pinDigests",
@@ -126,5 +130,8 @@
       "currentValueTemplate": "main"
     }
   ],
-  "dependencyDashboard": true
+  "dependencyDashboard": {
+    "enabled": true,
+    "osvVulnerabilitySummary": "unresolved"
+  }
 }
