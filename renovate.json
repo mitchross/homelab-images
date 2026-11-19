@@ -127,7 +127,7 @@
       "depNameTemplate": "club-3090-patches",
       "packageNameTemplate": "https://github.com/noonghunna/club-3090",
       "datasourceTemplate": "git-refs",
-      "currentValueTemplate": "main"
+      "currentValueTemplate": "master"
     }
   ],
   "dependencyDashboard": {
