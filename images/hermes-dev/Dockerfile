@@ -1,14 +1,14 @@
-# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+# syntax=docker/dockerfile:1@sha256:572cebbc2b15e6f84c077742952674889cb63cd5e9b80abdffcbe587b6f19183
 # Official Hermes Agent plus the coding agents and cluster CLIs its skills call.
-FROM docker.io/nousresearch/hermes-agent:v0.23.2@sha256:d6746a084e9341baada483e3d6210444d3c1aeb7c130f0915150065fb2851459
+FROM docker.io/nousresearch/hermes-agent:v0.23.3@sha256:3e9fe4c6ef36490f43aa0d0d80f9df64e9c92a576eee3042f1a97c8813c05355
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-ARG CLAUDE_VERSION=2.1.326
+ARG CLAUDE_VERSION=2.1.329
 # renovate: datasource=npm depName=@openai/codex
-ARG CODEX_VERSION=0.169.0
+ARG CODEX_VERSION=0.171.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
-ARG GH_VERSION=2.104.0
+ARG GH_VERSION=2.105.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
 ARG KUBECTL_VERSION=1.37.2
 # Downloads are checked against each release's published checksums.
@@ -26,7 +26,7 @@ ARG HELM_VERSION=4.3.2
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/v(?<version>.+)$
 ARG KUSTOMIZE_VERSION=5.8.3
 # renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.+)$
-ARG BUN_VERSION=1.4.4
+ARG BUN_VERSION=1.4.5
 # renovate: datasource=golang-version depName=go
 ARG GO_VERSION=1.27.4
 # renovate: datasource=pypi depName=pytest
