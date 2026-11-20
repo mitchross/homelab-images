@@ -8,6 +8,7 @@ Container images for mitchross's homelab. Each image has its own README.
 | `ghcr.io/mitchross/wyze-lake`: native Cam Pan v4 video to RTSP | [images/wyze-lake](images/wyze-lake/README.md) |
 | `ghcr.io/mitchross/strata`: Strata LLM server, CUDA sm_86 | [images/strata](images/strata/README.md) |
 | `ghcr.io/mitchross/fio`: pinned fio storage benchmark with jq | [images/fio](images/fio/README.md) |
+| `ghcr.io/mitchross/immich-postgres`: Postgres 19 with pgvector and VectorChord for Immich | [images/immich-postgres](images/immich-postgres/README.md) |
 
 | Folder | Holds |
 | --- | --- |
