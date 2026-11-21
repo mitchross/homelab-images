@@ -8,7 +8,7 @@ run() {
 }
 version="$(run "$image" --version 2>&1)" || { echo "$version"; exit 1; }
 echo "$version"
-grep -q "version: $build " <<< "$version"
+grep -q "(build $build, commit " <<< "$version"
 run "$image" --list-devices 2>&1
 run --entrypoint /app/llama-bench "$image" --help > /dev/null
 run --entrypoint /app/llama-cli "$image" --version 2>&1 | tail -n 2
