@@ -85,6 +85,16 @@
       ]
     },
     {
+      "description": "llama.cpp tags several builds a day: bump only on approval.",
+      "matchDepNames": ["llama-cpp-upstream"],
+      "groupName": "llama.cpp upstream",
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "prBodyNotes": [
+        "Also set images/llama-cpp/SOURCE_REF to the new tag's commit; the pin check fails until it matches."
+      ]
+    },
+    {
       "matchPackageNames": ["club-3090-patches"],
       "groupName": "vllm club-3090 patches",
       "dependencyDashboardApproval": true,
@@ -118,6 +128,16 @@
       "packageNameTemplate": "https://github.com/Niko1221/Strata",
       "datasourceTemplate": "git-refs",
       "currentValueTemplate": "main"
+    },
+    {
+      "description": "Track the pinned llama.cpp release tag.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/llama-cpp/VERSION$/"],
+      "matchStrings": ["^(?<currentValue>b\\d+)-sm86\\s*$"],
+      "depNameTemplate": "llama-cpp-upstream",
+      "packageNameTemplate": "ggml-org/llama.cpp",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^b(?<major>\\d+)$"
     },
     {
       "description": "Track the vendored club-3090 patch source for manual review.",
