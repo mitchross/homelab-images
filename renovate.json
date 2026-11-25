@@ -102,6 +102,18 @@
       "prBodyNotes": [
         "Re-vendor all patch directories, update the Dockerfile revision label and bump VERSION; changing SOURCE_REF alone does not update patch code."
       ]
+    },
+    {
+      "description": "sccache publishes a bare-hash .sha256 file, so Renovate cannot update the pinned tarball hash itself.",
+      "matchDepNames": [
+        "mozilla/sccache"
+      ],
+      "groupName": null,
+      "groupSlug": null,
+      "automerge": false,
+      "prBodyNotes": [
+        "Copy the hash from the release's `sccache-v<version>-x86_64-unknown-linux-musl.tar.gz.sha256` asset into `SCCACHE_SHA256` in images/arc-runner-rust/Dockerfile. The build fails until it matches."
+      ]
     }
   ],
   "customManagers": [
