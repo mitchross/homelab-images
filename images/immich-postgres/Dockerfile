@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+# syntax=docker/dockerfile:1@sha256:572cebbc2b15e6f84c077742952674889cb63cd5e9b80abdffcbe587b6f19183
 # Postgres 19 for Immich: pgvector from PGDG plus VectorChord built from the pgsty fork.
 # Upstream ghcr.io/immich-app/postgres stops at Postgres 18; see README "Switch back to upstream".
-FROM postgres:19.0-trixie@sha256:bb6e70add742cd868fb62cb3b2f67d1dd2bdd2b65a521e778420748753687c60 AS build
+FROM postgres:19.0-trixie@sha256:aaa10f7ba7328b4a221a6c3184d83eef885bd16bf1f6de864757863156b0a4d1 AS build
 ARG RUST_VERSION=1.100.0
 # pgsty/vchord tag 1.3.0
 ARG VCHORD_COMMIT=1b35b7a0bc9a71bc82aa4c3396c5545da062d050
@@ -17,7 +17,7 @@ RUN git init -q . \
 RUN PG_CONFIG=/usr/lib/postgresql/19/bin/pg_config make build \
     && make PG_CONFIG=/usr/lib/postgresql/19/bin/pg_config DESTDIR=/out install
 
-FROM postgres:19.0-trixie@sha256:bb6e70add742cd868fb62cb3b2f67d1dd2bdd2b65a521e778420748753687c60
+FROM postgres:19.0-trixie@sha256:aaa10f7ba7328b4a221a6c3184d83eef885bd16bf1f6de864757863156b0a4d1
 ARG PGVECTOR_VERSION=0.8.7-1.pgdg13+2
 RUN apt-get update \
     && apt-get install -y --no-install-recommends "postgresql-19-pgvector=$PGVECTOR_VERSION" \
