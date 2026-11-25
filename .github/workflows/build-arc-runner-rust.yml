@@ -1,0 +1,52 @@
+name: Build ARC Rust runner image
+on:
+  pull_request:
+    paths: ['images/arc-runner-rust/**', '.github/workflows/build-arc-runner-rust.yml']
+  push:
+    paths: ['images/arc-runner-rust/**', '.github/workflows/build-arc-runner-rust.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: arc-runner-rust-image-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  IMAGE: ghcr.io/mitchross/arc-runner-rust:sha-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+jobs:
+  build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: images/arc-runner-rust
+          platforms: linux/amd64
+          load: true
+          tags: ${{ env.IMAGE }}
+          cache-from: type=gha,scope=arc-runner-rust
+          cache-to: type=gha,scope=arc-runner-rust,mode=min
+      - name: Test as the runner user with no network
+        run: bash images/arc-runner-rust/scripts/test-image.sh "$IMAGE"
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish tested revision
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push "$IMAGE"
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            docker tag "$IMAGE" ghcr.io/mitchross/arc-runner-rust:main
+            docker push ghcr.io/mitchross/arc-runner-rust:main
+          fi
+          digest=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE")
+          echo "Published: \`$digest\`" >> "$GITHUB_STEP_SUMMARY"
