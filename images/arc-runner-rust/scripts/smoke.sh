@@ -20,15 +20,18 @@ cd "$work"
 # A repo pinning the baked toolchain must not trigger a download.
 printf '[toolchain]\nchannel = "%s"\ncomponents = ["clippy", "rustfmt"]\nprofile = "minimal"\n' \
   "$(rustc --version | cut -d' ' -f2)" > rust-toolchain.toml
-cargo new --quiet --vcs none smoke
+cargo new --quiet --vcs none --lib smoke
 mv rust-toolchain.toml smoke/
 cd smoke
 rustup toolchain install
 cargo fmt --check
 cargo clippy --quiet -- -D warnings
+# Bin crates are not cacheable; a lib built twice must hit the cache.
 export SCCACHE_DIR=$work/sccache RUSTC_WRAPPER=sccache
 sccache --start-server
 cargo build --quiet --release
-./target/release/smoke | grep -q 'Hello, world!'
-sccache --show-stats --stats-format json | jq -e '.stats.requests_executed > 0' >/dev/null
+cargo clean --quiet
+cargo build --quiet --release
+cargo test --quiet --release
+sccache --show-stats --stats-format json | jq -e '.stats.cache_hits.counts.Rust >= 1' >/dev/null
 echo "arc-runner-rust smoke OK"
