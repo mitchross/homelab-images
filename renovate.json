@@ -111,7 +111,7 @@
         "/^images/.+/Dockerfile$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( extractVersion=(?<extractVersion>\\S+))?\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( extractVersion=(?<extractVersion>\\S+))?\\nARG \\w+_VERSION=(?<currentValue>\\S+)(\\nARG \\w+_SHA256=(?<currentDigest>[0-9a-f]{64}))?"
       ],
       "versioningTemplate": "semver"
     },

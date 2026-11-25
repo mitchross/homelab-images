@@ -6,8 +6,10 @@ ARG AGORA_PYTHON_URL=https://files.pythonhosted.org/packages/33/4d/715e0c325e42f
 ARG AGORA_PYTHON_SHA256=3f9453ce4730c1b9db86e56ea9b96713ffc576060b357d9bf0de8f65b473031e
 ARG AGORA_SDK_URL=https://download.agora.io/sdk/release/agora_rtc_sdk_x86_64-linux-gnu-v4.4.32.174_28020_SERVER_20260601_1240_1144448_20251021_1427-3a.zip
 ARG AGORA_SDK_SHA256=66f8a30dc75bb4f50a0597b52445c2b197bbc1970cd632262a24cdffe39b9130
-# renovate: datasource=github-releases depName=AlexxIT/go2rtc extractVersion=^v(?<version>.+)$
-ARG GO2RTC_VERSION=1.9.15
+# Renovate updates the tag and the go2rtc_linux_amd64 digest together.
+# renovate: datasource=github-release-attachments depName=AlexxIT/go2rtc
+ARG GO2RTC_VERSION=v1.9.15
+ARG GO2RTC_SHA256=20b46c6910734cb05ecefb234066f36868ff19b42ba1418a7a32e13a3e035712
 RUN test "$TARGETARCH" = amd64 && apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl unzip \
     && rm -rf /var/lib/apt/lists/*
@@ -22,10 +24,8 @@ RUN curl -fsSL "$AGORA_PYTHON_URL" -o /tmp/python-sdk.tar.gz \
     && chmod -R a+rX /opt/agora/agora \
     && rm -rf /opt/agora/agora/agora_sdk/include
 # Copy the wrapper directly; its setup.py downloads an unverified SDK during installation.
-RUN curl -fsSL "https://github.com/AlexxIT/go2rtc/releases/download/v${GO2RTC_VERSION}/go2rtc_linux_amd64" -o /usr/local/bin/go2rtc \
-    && sha=$(curl -fsSL "https://api.github.com/repos/AlexxIT/go2rtc/releases/tags/v${GO2RTC_VERSION}" \
-         | python3 -c 'import json,sys; print(next(a["digest"] for a in json.load(sys.stdin)["assets"] if a["name"] == "go2rtc_linux_amd64").removeprefix("sha256:"))') \
-    && echo "${sha:?no checksum}  /usr/local/bin/go2rtc" | sha256sum -c - \
+RUN curl -fsSL "https://github.com/AlexxIT/go2rtc/releases/download/${GO2RTC_VERSION}/go2rtc_linux_amd64" -o /usr/local/bin/go2rtc \
+    && echo "${GO2RTC_SHA256}  /usr/local/bin/go2rtc" | sha256sum -c - \
     && chmod 0755 /usr/local/bin/go2rtc
 
 FROM python:3.15.2-slim-bookworm@sha256:498829c717b1e59fc42f0e7865eafe4e04ca0f70a3769d4ae70ba218df54507c AS runtime
