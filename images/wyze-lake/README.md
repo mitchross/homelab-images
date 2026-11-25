@@ -87,7 +87,8 @@ No Android device is required.
 
 ## Update
 
-Renovate proposes base image digests and go2rtc. The build checks go2rtc against GitHub's asset digest.
+Renovate proposes base image digests and go2rtc. One go2rtc PR changes `GO2RTC_VERSION` and `GO2RTC_SHA256` together.
+The build checks the binary against the pinned SHA256 and makes no GitHub API call.
 Update the Agora URLs and SHA256 values and the Debian package pins by hand.
 Keep the native SDK URL aligned with the Python wrapper's expected version file.
 Rebuild the image. Run the image test with fresh storage.
