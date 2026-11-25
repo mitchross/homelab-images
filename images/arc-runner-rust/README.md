@@ -30,7 +30,7 @@ Run these commands from the repository root:
 
 ```sh
 docker build --platform linux/amd64 -t arc-runner-rust:local images/arc-runner-rust
-bash scripts/test-arc-runner-rust.sh arc-runner-rust:local
+bash images/arc-runner-rust/scripts/test-image.sh arc-runner-rust:local
 ```
 
 The test runs with no network as the runner user. It checks every tool, builds a small crate through sccache, and checks that the baked toolchain needs no download.
