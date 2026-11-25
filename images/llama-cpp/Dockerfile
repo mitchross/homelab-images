@@ -3,7 +3,7 @@
 ARG LLAMA_COMMIT
 ARG LLAMA_BUILD_NUMBER
 
-FROM node:24.22.3-trixie@sha256:6e5d4c38403930b420404f190be8563396dca2bd156a6cb4722707b0efcf6fc1 AS source
+FROM node:26.13.1-trixie@sha256:f8e5d4bb28fa55c74f1345166a082a10b7c68f22304350c1ce0d18358ae94996 AS source
 ARG LLAMA_COMMIT
 WORKDIR /src
 RUN test -n "$LLAMA_COMMIT" \
@@ -13,7 +13,7 @@ RUN test -n "$LLAMA_COMMIT" \
     && test "$(git rev-parse HEAD)" = "$LLAMA_COMMIT"
 
 # The chat UI is built from source so the build never downloads prebuilt assets.
-FROM node:24.22.3-trixie@sha256:6e5d4c38403930b420404f190be8563396dca2bd156a6cb4722707b0efcf6fc1 AS web
+FROM node:26.13.1-trixie@sha256:f8e5d4bb28fa55c74f1345166a082a10b7c68f22304350c1ce0d18358ae94996 AS web
 ARG LLAMA_BUILD_NUMBER
 WORKDIR /app/ui/apps/chat
 COPY --from=source /src/ui/apps/chat/package.json /src/ui/apps/chat/package-lock.json ./
