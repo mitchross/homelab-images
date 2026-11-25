@@ -29,7 +29,8 @@ RUN curl -fsSL "https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/x8
     && chmod +x /tmp/rustup-init \
     && /tmp/rustup-init -y --no-modify-path --profile minimal \
          --default-toolchain "$RUST_VERSION" --component clippy,rustfmt \
-    && rm /tmp/rustup-init
+    && rm /tmp/rustup-init \
+    && rustup set auto-self-update disable
 COPY --chmod=0755 scripts/smoke.sh /usr/local/bin/arc-runner-rust-smoke
 LABEL org.opencontainers.image.source="https://github.com/mitchross/homelab-images" \
       org.opencontainers.image.description="GitHub Actions ARC runner with Rust, clippy, rustfmt, sccache, protoc and cmake"
