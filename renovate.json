@@ -95,6 +95,15 @@
       ]
     },
     {
+      "description": "ARTEX runs database migrations on start: review each release, never automerge.",
+      "matchDepNames": ["artex-upstream"],
+      "groupName": "artex upstream",
+      "automerge": false,
+      "prBodyNotes": [
+        "Also set images/artex/SOURCE_REF to the commit of tag v<VERSION> (`git ls-remote https://github.com/BaaRai/ARTEX.git 'refs/tags/v<VERSION>^{}'`); the pin check fails until it matches. After the image publishes, bump the talos deployment with the digest from the main run summary."
+      ]
+    },
+    {
       "matchPackageNames": ["club-3090-patches"],
       "groupName": "vllm club-3090 patches",
       "dependencyDashboardApproval": true,
@@ -150,6 +159,17 @@
       "packageNameTemplate": "ggml-org/llama.cpp",
       "datasourceTemplate": "github-tags",
       "versioningTemplate": "regex:^b(?<major>\\d+)$"
+    },
+    {
+      "description": "Track the pinned ARTEX release.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/artex/VERSION$/"],
+      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s*$"],
+      "depNameTemplate": "artex-upstream",
+      "packageNameTemplate": "BaaRai/ARTEX",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
+      "versioningTemplate": "semver"
     },
     {
       "description": "Track the vendored club-3090 patch source for manual review.",

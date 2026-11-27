@@ -11,6 +11,7 @@ Container images for mitchross's homelab. Each image has its own README.
 | `ghcr.io/mitchross/fio`: pinned fio storage benchmark with jq | [images/fio](images/fio/README.md) |
 | `ghcr.io/mitchross/immich-postgres`: Postgres 19 with pgvector and VectorChord for Immich | [images/immich-postgres](images/immich-postgres/README.md) |
 | `ghcr.io/mitchross/arc-runner-rust`: ARC GitHub Actions runner with Rust, sccache and protoc | [images/arc-runner-rust](images/arc-runner-rust/README.md) |
+| `ghcr.io/mitchross/artex`: upstream ARTEX security agent platform at a pinned release | [images/artex](images/artex/README.md) |
 
 | Folder | Holds |
 | --- | --- |
