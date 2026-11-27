@@ -95,6 +95,21 @@
       ]
     },
     {
+      "description": "ARTEX runs database migrations on start: review each release, never automerge.",
+      "matchDepNames": ["artex-upstream"],
+      "groupName": "artex upstream",
+      "automerge": false,
+      "prBodyNotes": [
+        "Also set images/artex/SOURCE_REF to the commit of tag v<VERSION> (`git ls-remote https://github.com/BaaRai/ARTEX.git 'refs/tags/v<VERSION>^{}'`); the pin check fails until it matches. After the image publishes, bump the talos deployment with the digest from the main run summary."
+      ]
+    },
+    {
+      "description": "ARTEX base tags must match upstream's Dockerfile: Renovate bumps their digests only.",
+      "matchFileNames": ["images/artex/BASE_IMAGES"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "enabled": false
+    },
+    {
       "matchPackageNames": ["club-3090-patches"],
       "groupName": "vllm club-3090 patches",
       "dependencyDashboardApproval": true,
@@ -150,6 +165,24 @@
       "packageNameTemplate": "ggml-org/llama.cpp",
       "datasourceTemplate": "github-tags",
       "versioningTemplate": "regex:^b(?<major>\\d+)$"
+    },
+    {
+      "description": "Track the pinned ARTEX release.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/artex/VERSION$/"],
+      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s*$"],
+      "depNameTemplate": "artex-upstream",
+      "packageNameTemplate": "BaaRai/ARTEX",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track the digests that pin the ARTEX Dockerfile's mutable base tags.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/artex/BASE_IMAGES$/"],
+      "matchStrings": ["(?<depName>[a-z0-9][a-z0-9./_-]*):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[0-9a-f]{64})"],
+      "datasourceTemplate": "docker"
     },
     {
       "description": "Track the vendored club-3090 patch source for manual review.",
