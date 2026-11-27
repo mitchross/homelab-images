@@ -50,7 +50,7 @@ curl -fsS "http://$ip:8787/api/health" | grep -q '"ok":true'
 logs="$(docker logs "$app" 2>&1)"
 snapshot="$(grep -m1 '\[config\] snapshot ' <<< "$logs")"
 echo "$snapshot"
-grep -q "\"version\":\"$version\"" <<< "$snapshot"
+grep -q "\"version\":\"v$version\"" <<< "$snapshot"
 grep -q '"proxy":"127.0.0.1:8788"' <<< "$snapshot"
 grep -q '"noise_profile":"quiet"' <<< "$snapshot"
 grep -q '"key_dir":"/app/keys"' <<< "$snapshot"

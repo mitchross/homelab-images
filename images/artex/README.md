@@ -23,7 +23,7 @@ Find deployment manifests in [talos-argocd-proxmox](https://github.com/mitchross
 | `VERSION` | Upstream release without the `v`, e.g. `0.7.0`. It is also the image tag. |
 
 The workflow checks that `v<VERSION>` (an annotated tag, compared through `^{}`) points at `SOURCE_REF`.
-It builds with `ARTEX_VERSION=v<VERSION>`, as upstream's release job does, so the server logs `"version":"<VERSION>"`.
+It builds with `ARTEX_VERSION=v<VERSION>`, as upstream's release job does, so the server logs `"version":"v<VERSION>"`.
 It never overwrites an existing tag, so a rebuild of the same release is not possible without a new tag scheme.
 
 ## Build and test
