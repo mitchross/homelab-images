@@ -1,10 +1,10 @@
 name: Build ARTEX image
 on:
   pull_request:
-    paths: ['images/artex/**', 'scripts/test-artex.sh', '.github/workflows/build-artex.yml']
+    paths: ['images/artex/**', 'scripts/test-artex.sh', 'scripts/artex-base-contexts.sh', '.github/workflows/build-artex.yml']
   push:
     branches: [main]
-    paths: ['images/artex/**', 'scripts/test-artex.sh', '.github/workflows/build-artex.yml']
+    paths: ['images/artex/**', 'scripts/test-artex.sh', 'scripts/artex-base-contexts.sh', '.github/workflows/build-artex.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,66 +39,57 @@ jobs:
           if [[ "$GITHUB_REF" == refs/heads/main ]]; then publish=true; fi
           printf 'publish=%s\nsource_ref=%s\ntag=%s\n' "$publish" "$source_ref" "$version" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        if: steps.meta.outputs.publish == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Check immutable tag
         id: exists
+        if: steps.meta.outputs.publish == 'true'
         env:
           TAG: ${{ steps.meta.outputs.tag }}
         run: |
           set -euo pipefail
-          if docker buildx imagetools inspect "$IMAGE:$TAG" > /tmp/image-manifest 2>/dev/null; then
-            digest="$(awk '$1 == "Digest:" { print $2; exit }' /tmp/image-manifest)"
+          # Only a registry "not found" means absent; auth, network or other errors stop the publish.
+          if out="$(docker buildx imagetools inspect "$IMAGE:$TAG" 2>&1)"; then
+            digest="$(awk '$1 == "Digest:" { print $2; exit }' <<< "$out")"
             [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
             printf 'digest=%s\nexists=true\n' "$digest" >> "$GITHUB_OUTPUT"
-          else
+          elif grep -qiE "$IMAGE:$TAG: not found|manifest unknown|name unknown" <<< "$out"; then
             echo 'exists=false' >> "$GITHUB_OUTPUT"
+          else
+            echo "$out"
+            echo "::error::cannot tell whether $IMAGE:$TAG exists; refusing to publish"
+            exit 1
           fi
       - name: Checkout ARTEX at the pinned commit
-        if: steps.exists.outputs.exists != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ env.UPSTREAM }}
           ref: ${{ steps.meta.outputs.source_ref }}
           path: artex-src
           persist-credentials: false
-      - name: Check the checkout
-        if: steps.exists.outputs.exists != 'true'
+      - name: Check the checkout and pin base images
+        id: base
         env:
           SOURCE_REF: ${{ steps.meta.outputs.source_ref }}
         run: |
           set -euo pipefail
           [[ "$(git -C artex-src rev-parse HEAD)" == "$SOURCE_REF" ]]
+          contexts="$(bash scripts/artex-base-contexts.sh artex-src/Dockerfile "$IMAGE_DIR/BASE_IMAGES")"
+          printf 'contexts<<EOF\n%s\nEOF\n' "$contexts" >> "$GITHUB_OUTPUT"
+      # One build for every run: the image the next steps test is the image they push.
       - name: Build
-        if: steps.exists.outputs.exists != 'true'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
           context: artex-src
           file: artex-src/Dockerfile
           platforms: linux/amd64
           load: true
-          tags: artex:test
-          build-args: |
-            ARTEX_VERSION=v${{ steps.meta.outputs.tag }}
-          cache-from: type=gha,scope=artex
-          cache-to: type=gha,scope=artex,mode=max
-      - name: Test with the deployment's identity, capabilities and flags
-        if: steps.exists.outputs.exists != 'true'
-        run: bash scripts/test-artex.sh artex:test "${{ steps.meta.outputs.tag }}"
-      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
-        if: steps.meta.outputs.publish == 'true' && steps.exists.outputs.exists != 'true'
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish tested image
-        if: steps.meta.outputs.publish == 'true' && steps.exists.outputs.exists != 'true'
-        id: push
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
-        with:
-          context: artex-src
-          file: artex-src/Dockerfile
-          platforms: linux/amd64
-          push: true
           tags: ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
+          build-contexts: ${{ steps.base.outputs.contexts }}
           # source must be this repo: GHCR links the package to it. Upstream goes in url.
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
@@ -109,8 +100,32 @@ jobs:
           build-args: |
             ARTEX_VERSION=v${{ steps.meta.outputs.tag }}
           cache-from: type=gha,scope=artex
+          cache-to: type=gha,scope=artex,mode=max
+      - name: Test with the deployment's identity, capabilities and flags
+        id: tested
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          echo "id=$(docker image inspect -f '{{.Id}}' "$IMAGE:$TAG")" >> "$GITHUB_OUTPUT"
+          bash scripts/test-artex.sh "$IMAGE:$TAG" "$TAG"
+      - name: Publish tested image
+        if: steps.meta.outputs.publish == 'true' && steps.exists.outputs.exists == 'false'
+        id: push
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+          TESTED_ID: ${{ steps.tested.outputs.id }}
+        run: |
+          set -euo pipefail
+          [[ "$(docker image inspect -f '{{.Id}}' "$IMAGE:$TAG")" == "$TESTED_ID" ]]
+          docker push "$IMAGE:$TAG" | tee /tmp/push.log
+          digest="$(grep -oE 'digest: sha256:[0-9a-f]{64}' /tmp/push.log | tail -n1 | cut -d' ' -f2)"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          remote="$(docker buildx imagetools inspect "$IMAGE:$TAG" | awk '$1 == "Digest:" { print $2; exit }')"
+          [[ "$remote" == "$digest" ]] || { echo "registry has $remote, pushed $digest"; exit 1; }
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - name: Report image digest
-        if: steps.meta.outputs.publish == 'true' || steps.exists.outputs.exists == 'true'
+        if: steps.meta.outputs.publish == 'true'
         env:
           BUILT_DIGEST: ${{ steps.push.outputs.digest }}
           EXISTING_DIGEST: ${{ steps.exists.outputs.digest }}
@@ -119,4 +134,6 @@ jobs:
           set -euo pipefail
           digest="${BUILT_DIGEST:-$EXISTING_DIGEST}"
           [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
-          printf 'Published: `%s:%s@%s`\n' "$IMAGE" "$TAG" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          note=''
+          if [[ -z "$BUILT_DIGEST" ]]; then note=' (tag already existed; this build was tested, not pushed)'; fi
+          printf 'Published: `%s:%s@%s`%s\n' "$IMAGE" "$TAG" "$digest" "$note" >> "$GITHUB_STEP_SUMMARY"

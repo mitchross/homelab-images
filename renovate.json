@@ -104,6 +104,12 @@
       ]
     },
     {
+      "description": "ARTEX base tags must match upstream's Dockerfile: Renovate bumps their digests only.",
+      "matchFileNames": ["images/artex/BASE_IMAGES"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "enabled": false
+    },
+    {
       "matchPackageNames": ["club-3090-patches"],
       "groupName": "vllm club-3090 patches",
       "dependencyDashboardApproval": true,
@@ -170,6 +176,13 @@
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
       "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track the digests that pin the ARTEX Dockerfile's mutable base tags.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/artex/BASE_IMAGES$/"],
+      "matchStrings": ["(?<depName>[a-z0-9][a-z0-9./_-]*):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[0-9a-f]{64})"],
+      "datasourceTemplate": "docker"
     },
     {
       "description": "Track the vendored club-3090 patch source for manual review.",
